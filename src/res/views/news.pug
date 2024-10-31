@@ -1,0 +1,11 @@
+
+extends layouts/main 
+
+block content
+  h2 Danh sách tin tức
+  ul
+    each item in items 
+      li
+        a(href=`/news/${item.id}`)= item.title
+        p= item.summary
+        p= item.createdAt

@@ -1,0 +1,8 @@
+
+extends layouts/main 
+
+block content 
+  h1 Danh sách sản phẩm
+  ul
+    each item in items
+      li= item.name  
