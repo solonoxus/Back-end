@@ -1,16 +1,17 @@
 // Import Fastify với logger
 const fastify = require("fastify")({ logger: true });
 const path = require("path");
+const app = fastify; // Đổi tên fastify thành app
+const route = require('../router'); // Import module từ file khác
 
 // Đăng ký fastify-view cho Pug
-fastify.register(require("@fastify/view"), {
+app.register(require("@fastify/view"), {
   engine: {
-    pug: require("pug"), // Thêm phần này để sử dụng Pug
+    pug: require("pug") // Thêm phần này để sử dụng Pug
   },
-  root: path.join(__dirname, "res", "views", ), // Đường dẫn tới thư mục chứa view
-  viewExt: "pug", // Đuôi file của template
+  root: path.join(__dirname, "res", "views"), // Đường dẫn tới thư mục chứa view
+  viewExt: "pug" // Đuôi file của template
 });
-
 
 // In-memory data store
 let items = [];
@@ -20,31 +21,39 @@ console.log(
   "Đường dẫn views:",
   path.join(__dirname, "res", "views", "layouts")
 );
+
 // Đăng ký @fastify/static để phục vụ các tệp tĩnh
-fastify.register(require('@fastify/static'), {
-    root: path.join(__dirname, 'public'), // Đường dẫn tới thư mục chứa các file tĩnh
-    prefix: '/public/' // Tiền tố đường dẫn
+app.register(require("@fastify/static"), {
+  root: path.join(__dirname, "public"), // Đường dẫn tới thư mục chứa các file tĩnh
+  prefix: "/public/" // Tiền tố đường dẫn
 });
+
 // Declare routes
 
 // Create
-fastify.post("/items", async (request, reply) => {
+app.post("/items", async (request, reply) => {
   const item = request.body;
   items.push(item);
   return item;
 });
 
-fastify.get("/news-tin", async (request, reply) => {
+// Tìm kiếm
+app.get("/seach", async (request, reply) => {
   return reply.view("news", { items: items }); // Đã tự động thêm đuôi .pug
 });
 
-// Read all
-fastify.get("/tin-tuc", async (request, reply) => {
-  return reply.view("home", { items: items }); // Đã tự động thêm đuôi .pug
-});
+// // Tin tức
+// app.get("/news-tin", async (request, reply) => {
+//   return reply.view("news", { items: items }); // Đã tự động thêm đuôi .pug
+// });
+
+// // Read all
+// app.get("/tin-tuc", async (request, reply) => {
+//   return reply.view("home", { items: items }); // Đã tự động thêm đuôi .pug
+// });
 
 // Read one
-fastify.get("/items/:id", async (request, reply) => {
+app.get("/items/:id", async (request, reply) => {
   const id = request.params.id;
   const item = items.find((i) => i.id === id);
   if (item) {
@@ -55,7 +64,7 @@ fastify.get("/items/:id", async (request, reply) => {
 });
 
 // Update
-fastify.put("/items/:id", async (request, reply) => {
+app.put("/items/:id", async (request, reply) => {
   const id = request.params.id;
   const updatedItem = request.body;
   let index = items.findIndex((i) => i.id === id);
@@ -68,7 +77,7 @@ fastify.put("/items/:id", async (request, reply) => {
 });
 
 // Delete
-fastify.delete("/items/:id", async (request, reply) => {
+app.delete("/items/:id", async (request, reply) => {
   const id = request.params.id;
   let index = items.findIndex((i) => i.id === id);
   if (index !== -1) {
@@ -78,15 +87,17 @@ fastify.delete("/items/:id", async (request, reply) => {
     reply.status(404).send({ message: "Item not found" });
   }
 });
+route(app); // Gọi hàm route từ file router/index.js
 
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000, host: "0.0.0.0" });
-    fastify.log.info(`server listening on ${fastify.server.address().port}`);
+    await app.listen({ port: 3000, host: "0.0.0.0" });
+    app.log.info(`server listening on ${app.server.address().port}`);
   } catch (err) {
-    fastify.log.error(err);
+    app.log.error(err);
     process.exit(1);
   }
 };
+
 start();
