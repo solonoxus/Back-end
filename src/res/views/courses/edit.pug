@@ -1,0 +1,18 @@
+div.mt-4
+    h3 Cập nhật khóa học
+
+    form.mt-4(method="POST", action=`/courses/${course._id}?_method=PUT`)
+        .form-group
+            label(for="name") Tên khóa học
+            input.form-control(type="text", value=course.name, id="name", name="name")
+        .form-group
+            label(for="description") Mô tả
+            textarea.form-control(id="description", name="description")= course.description
+        .form-group
+            label(for="videoId") Video ID
+            input.form-control(type="text", value=course.videoId, id="videoId", name="videoId")
+        .form-group
+            label(for="level") Trình độ
+            input.form-control(type="text", value=course.level, id="level", name="level")
+        
+        button.btn.btn-primary(type="submit") Lưu lại

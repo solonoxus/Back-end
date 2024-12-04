@@ -1,8 +1,13 @@
 
-extends layouts/main 
-
-block content 
-  h1 Danh sách sản phẩm
-  ul
-    each item in items
-      li= item.name  
+div.mt-4
+  .row
+    each course in courses
+      .col-sm-6.col-lg-4
+        .card.card-course-item
+          a(href=`/courses/${course.slug}`)
+            img.card-img-top(src=course.image, alt=course.name)
+          .card-body
+            a(href=`/courses/${course.slug}`)
+              h5.card-title= course.name
+            p.card-text= course.description
+            a.btn.btn-primary(href='#') Mua khóa học

@@ -1,0 +1,14 @@
+
+    .mt-4
+        form(method="POST" action="")
+            .form-group
+                label(for="search-input") Từ khóa
+                input(type="text" name="q" class="form-control" id="search-input" placeholder="Nhập từ khóa...")
+            .form-group
+                label(for="gender-input") Từ khóa
+                select(name="gender" class="form-control" id="gender-input")
+                    option(value="") -- Chọn giới tính --
+                    option(value="male") Nam
+                    option(value="female") Nữ
+            button(type="submit" class="btn btn-primary") Tìm kiếm
+
