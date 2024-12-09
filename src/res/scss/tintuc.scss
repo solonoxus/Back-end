@@ -1,0 +1,109 @@
+\:root {
+    --primary-color: #ece7e9; /* Màu chính */
+    --secondary-color: #000000; /* Màu phụ */
+}
+
+/* Hiệu ứng fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px); /* Ban đầu dịch chuyển xuống dưới */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Dịch chuyển về vị trí ban đầu */
+    }
+}
+
+.body-tintuc {
+    margin: 70px auto 50px auto;
+    width: 85%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px; /* Khoảng cách giữa các phần tử */
+    justify-items: center; /* Căn giữa các phần tử */
+}
+
+.tintuc-info {
+    background-color: #fff; /* Nền trắng cho mỗi phần tin */
+    border-radius: 15px; /* Bo góc cho phần tin */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Bóng đổ mờ */
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Đảm bảo chiều cao đầy đủ */
+    min-height: 300px; /* Cố định chiều cao tối thiểu cho các ô */
+    flex-grow: 1; /* Các ô có thể mở rộng khi cần thiết */
+    box-sizing: border-box; /* Bao gồm padding trong chiều cao */
+    animation: fadeIn 0.5s ease-out; /* Thêm hiệu ứng fade-in */
+}
+
+/* Hover cho phần tin tức */
+.tintuc-info:hover {
+    transform: translateY(-8px); /* Di chuyển phần tin lên khi hover */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Tăng cường bóng khi hover */
+}
+
+/* Ảnh trong phần tin tức */
+.tintuc-info img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    border-radius: 10px; /* Bo góc cho ảnh */
+    margin-bottom: 15px;
+}
+
+/* Tiêu đề tin tức */
+.tintuc-info h5 {
+    font-weight: 700; /* Đậm cho tiêu đề */
+    color: #333;
+    font-size: 16px; /* Giảm kích thước chữ tiêu đề */
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+/* Hiệu ứng khi hover vào tiêu đề */
+.tintuc-info h5:hover {
+    color: var(--primary-color); /* Màu hồng khi hover vào tiêu đề */
+}
+
+/* Mô tả tin tức */
+.tintuc-info p {
+    font-size: 12px; /* Giảm kích thước chữ mô tả */
+    color: #553a3a; /* Màu xám cho mô tả */
+    line-height: 1.5;
+    flex-grow: 1;
+    margin-bottom: 15px; /* Khoảng cách dưới mô tả */
+}
+
+/* Liên kết trong tin tức (nếu có) */
+.tintuc-info a {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: var(--primary-color); /* Màu nền của nút */
+    color: #000000;
+    border-radius: 20px; /* Bo góc tròn cho nút */
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+    font-size: 14px; /* Giảm kích thước chữ của liên kết */
+}
+
+/* Hiệu ứng khi hover vào liên kết */
+.tintuc-info a:hover {
+    background-color: var(--primary-color); /* Màu nền thay đổi khi hover */
+    transform: scale(1.05); /* Phóng to nút khi hover */
+}
+
+/* Cải thiện khoảng cách và chiều cao cho các phần tử */
+.tintuc-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

@@ -1,0 +1,276 @@
+/* -----------------------------------------------
+  Menu công ty và Dropdown
+------------------------------------------------- */
+
+/* Menu công ty */
+.companyMenu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Khoảng cách giữa các menu */
+    margin-bottom: 30px; /* Khoảng cách dưới menu */
+    justify-content: center; /* Canh giữa menu */
+    align-items: stretch; /* Đảm bảo phần tử không thay đổi kích thước */
+}
+
+/* Các link trong menu */
+.companyMenu a {
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #444;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap; /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden; /* Ẩn phần văn bản vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu ba chấm khi văn bản quá dài */
+}
+
+.companyMenu a img {
+    max-height: 25px;
+    margin-right: 10px;
+}
+
+.companyMenu a:hover {
+    background-color: #3498db;
+    color: #fff;
+    transform: scale(1.05);
+    border-color: #2980b9;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background-color: #2c3e50;
+    color: white;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropbtn:after {
+    content: ' \25B7'; /* Mũi tên hướng sang phải */
+    margin-left: 8px;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3498db; /* Màu khi hover */
+}
+
+.dropdown:hover .dropbtn:after {
+    content: ' \25BD'; /* Mũi tên hướng xuống */
+}
+
+.dropdown {
+    position: relative;
+    margin: 10px;
+}
+
+.dropdown-content {
+    position: absolute;
+    z-index: 1;
+    min-width: 180px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    transform: translateY(-10px);
+    max-height: 200px; /* Giới hạn chiều cao của dropdown */
+    overflow-y: auto; /* Hiển thị thanh cuộn nếu cần */
+}
+
+.dropdown:hover .dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-content a {
+    padding: 12px 18px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    white-space: nowrap; /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden; /* Ẩn phần văn bản vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu ba chấm khi văn bản quá dài */
+}
+
+.dropdown-content a:hover {
+    background-color: #3498db;
+    color: #fff;
+}
+
+/* -----------------------------------------------
+  Filter by Name
+------------------------------------------------- */
+
+.filterName {
+    margin: 20px auto;
+    text-align: center;
+    max-width: 350px; /* Giới hạn chiều rộng của input */
+}
+
+.filterName input {
+    padding: 10px 20px;
+    height: 38px;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    white-space: nowrap; /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden; /* Ẩn phần văn bản vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu ba chấm khi văn bản quá dài */
+}
+
+.filterName input:focus {
+    border-color: #3498db; /* Đổi màu viền khi focus */
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.7); /* Hiệu ứng bóng khi focus */
+}
+
+/* -----------------------------------------------
+  Các khung sản phẩm
+------------------------------------------------- */
+
+.contain-khungSanPham {
+    margin: 0 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.khungSanPham {
+    width: 100%;
+    max-width: 300px; /* Giới hạn chiều rộng của khung sản phẩm */
+    margin: 30px 0;
+    border-radius: 10px;
+    border: 2px solid #3498db;
+    background-color: #f4f6f9; /* Nền sáng cho khung sản phẩm */
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+    overflow: hidden; /* Đảm bảo nội dung không làm thay đổi kích thước của phần tử */
+}
+
+.khungSanPham:hover {
+    transform: scale(1.03); /* Phóng to nhẹ khi hover */
+}
+
+.khungSanPham h3.tenKhung {
+    line-height: 2em;
+    font-size: 1.5em;
+    text-align: center;
+    margin: 0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #fff;
+    background-color: #2980b9;
+    white-space: nowrap; /* Ngăn không cho văn bản xuống dòng */
+    overflow: hidden; /* Ẩn phần văn bản vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu ba chấm khi văn bản quá dài */
+}
+
+/* Các item trong khung sản phẩm */
+.khungSanPham li {
+    list-style-type: none;
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* -----------------------------------------------
+  Nút xem tất cả
+------------------------------------------------- */
+
+.xemTatCa {
+    display: block;
+    text-align: center;
+    margin: 15px auto;
+    padding: 8px 15px;
+    width: 200px; /* Đặt chiều rộng cố định */
+    border-radius: 25px;
+    color: #fff;
+    background-color: #3498db;
+    font-weight: bold;
+    font-size: 12px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.xemTatCa:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+
+/* -----------------------------------------------
+  Các nút chọn bộ lọc
+------------------------------------------------- */
+
+.choosedFilter {
+    margin: 20px auto;
+    text-align: center;
+}
+
+.choosedFilter a {
+    font-size: 13px;
+    padding: 8px 15px;
+    color: #141313;
+    background: #3498db;
+    border-radius: 20px;
+    margin-right: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.choosedFilter a:hover {
+    background: #2980b9;
+    color: #fff;
+}
+
+/* Các icon trong bộ lọc */
+.choosedFilter i {
+    margin-left: 8px;
+    transition-duration: 0.3s;
+}
+
+/* -----------------------------------------------
+  Kết hợp các yếu tố thiết kế
+------------------------------------------------- */
+
+/* Các hiệu ứng chung */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fafafa;
+    color: #333;
+}
+
+h1, h2, h3 {
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none;
+}
+
+button {
+    cursor: pointer;
+}

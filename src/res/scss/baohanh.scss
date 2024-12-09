@@ -1,0 +1,130 @@
+/* Hiệu ứng fade-in cho bảng */
+@keyframes fadeInTable {
+    from {
+        opacity: 0;
+        transform: translateY(20px); /* Dịch chuyển bảng xuống dưới ban đầu */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Dịch chuyển bảng về vị trí ban đầu */
+    }
+}
+
+/* Toàn bộ bảng */
+table {
+    border-collapse: collapse;
+    margin: 50px auto;
+    width: 90%;
+    font-size: 16px;
+    background-color: #ffffff; /* Nền trắng cho bảng */
+    border: 1px solid #ddd; /* Đường viền mềm mại hơn với màu xám nhạt */
+    border-radius: 12px; /* Bo góc mềm mại cho bảng */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng nhẹ nhàng */
+    animation: fadeInTable 0.5s ease-out; /* Thêm hiệu ứng fade-in nhanh cho bảng */
+}
+
+/* Tiêu đề của bảng (header) */
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee; /* Đường viền nhẹ giữa các ô */
+    color: #333; /* Màu chữ đen */
+    font-family: 'Roboto', sans-serif; /* Font dễ đọc */
+    border-radius: 8px; /* Bo góc mềm mại cho các ô */
+    opacity: 0; /* Ban đầu ẩn các ô */
+    animation: fadeInTable 0.5s ease-out forwards; /* Áp dụng hiệu ứng fade-in nhanh cho các ô */
+}
+
+/* Liên kết trong bảng */
+td a {
+    display: block;
+    margin-left: 5px;
+    padding: 10px 0;
+    color: #00bcd4; /* Màu chữ xanh dương nhẹ */
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease; /* Hiệu ứng mượt mà */
+    border-radius: 5px; /* Bo góc nhẹ cho các liên kết */
+    opacity: 0; /* Ban đầu ẩn các liên kết */
+    animation: fadeInTable 0.6s ease-out forwards; /* Áp dụng hiệu ứng fade-in nhanh cho liên kết */
+}
+
+/* Hiệu ứng khi hover vào liên kết */
+td a:hover {
+    color: #ff4081; /* Màu thay đổi khi hover */
+    text-decoration: underline;
+    transform: translateX(5px); /* Dịch chuyển nhẹ khi hover */
+    box-shadow: 0 2px 6px rgba(255, 64, 129, 0.4); /* Hiệu ứng bóng nhẹ khi hover */
+}
+
+/* Các dòng chẵn có nền sáng hơn */
+tr:nth-of-type(even) {
+    background-color: #f9f9f9; /* Nền sáng cho dòng chẵn */
+}
+
+/* Hiệu ứng chữ nhấp nháy */
+.header-table marquee {
+    display: none; /* Ẩn marquee */
+}
+
+.header-table h1 {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: #ff4081; /* Màu chữ hồng nhẹ */
+    text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081; /* Hiệu ứng sáng nhẹ */
+    animation: blink 1s infinite; /* Thêm hiệu ứng nhấp nháy */
+}
+
+/* Animation cho chữ nhấp nháy */
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Các cột trong bảng */
+.col1 {
+    text-align: center;
+    width: 5%;
+    color: #00bcd4; /* Màu chữ xanh dương nhẹ */
+}
+
+.col2 {
+    padding-left: 10px;
+    width: 40%;
+}
+
+.col3 {
+    padding-left: 10px;
+    width: 30%;
+}
+
+.col4 {
+    padding-left: 20px;
+    width: 15%;
+}
+
+/* Nền của bảng */
+body {
+    background-color: #fafafa; /* Nền sáng nhẹ cho toàn bộ trang */
+    font-family: 'Roboto', sans-serif;
+    color: #333; /* Màu chữ đen cho trang */
+}
+
+/* Thêm bóng cho các ô */
+td, th {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bóng nhẹ cho các ô */
+}
+
+/* Hiệu ứng cho khi hover vào các ô */
+td:hover {
+    background-color: #f1f1f1; /* Nền sáng hơn khi hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Hiệu ứng bóng nhẹ khi hover */
+}

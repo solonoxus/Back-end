@@ -1,0 +1,80 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible" content="ie=edge")
+    title Tin tức - Thế giới điện thoại
+    link(rel="shortcut icon" href="img/favicon.ico")
+
+    // Load font awesome icons
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous")
+
+    // our files
+    // css
+    link(rel="stylesheet" href="css/style.css")
+    link(rel="stylesheet" href="css/topnav.css")
+    link(rel="stylesheet" href="css/header.css")
+    link(rel="stylesheet" href="css/taikhoan.css")
+    link(rel="stylesheet" href="css/footer.css")
+    link(rel="stylesheet" href="css/tintuc.css")
+
+    // js
+    script(src="data/products.js")
+    script(src="js/dungchung.js")
+    script.
+      window.onload = function () {
+        khoiTao();
+        // thêm tags (từ khóa) vào khung tìm kiếm
+        var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
+        for (var t of tags) addTags(t, "index.html?search=" + t);
+      }
+
+  body
+    script.
+      addTopNav();
+
+    section(style="min-height: 85vh")
+      script.
+        addHeader();
+
+      .body-tintuc
+        .tintuc-info
+          a(href="https://cellphones.com.vn/sforum/toc-do-sac-galaxy-s25-series-gay-that-vong" target="_blank")
+            img(src="img/tintuc/tintuc1.png")
+            h2 Điểm thất vọng lớn nhất trên Galaxy S25 Series là tốc độ sạc?
+          br
+          h5 Doanh ngiệp &emsp;3 giờ
+        .tintuc-info
+          a(href="https://cellphones.com.vn/sforum/oneplus-13r-xuat-hien-tren-geekbench-va-fcc" target="_blank")
+            img(src="img/tintuc/tintuc2.png")
+            h2 OnePlus 13R xuất hiện trên cơ sở dữ liệu Geekbench và FCC, thông số kỹ thuật chính được tiết lộ
+          br
+          h5 Thanh niên &emsp; 6 giờ
+        .tintuc-info
+          a(href="https://cellphones.com.vn/sforum/5-dien-thoai-duoc-ho-tro-phan-mem-tot-nhat" target="_blank")
+            img(src="img/tintuc/tintuc3.png")
+            h2 5 dòng điện thoại được hỗ trợ phần mềm tốt nhất hiện nay
+          br
+          h5 VOV &emsp; 6 giờ
+        .tintuc-info
+          a(href="https://cellphones.com.vn/sforum/danh-gia-xiaomi-15-pro" target="_blank")
+            img(src="img/tintuc/tintuc4.png")
+            h2 Đánh giá Xiaomi 15 Pro: Sang trọng, mạnh mẽ, camera ấn tượng... nhưng liệu có đáng mua?
+          br
+          h5 VietQ &emsp; 13 giờ
+        .tintuc-info(style="border-bottom: 0;")
+          a(href="https://cellphones.com.vn/sforum/realme-neo7-ra-mat-vao-ngay-11-12" target="_blank")
+            img(src="img/tintuc/tintuc5.png" height="148px" width="224px")
+            h2 realme Neo7 với pin khủng, giá hấp dẫn sẽ ra mắt vào ngày 11/12
+          br
+          h5 Zing &emsp; 9 giờ
+
+    script.
+      addContainTaiKhoan();
+
+    .footer
+      script.
+        addFooter();
+
+    i.fa.fa-arrow-up#goto-top-page(onclick="gotoTop()")

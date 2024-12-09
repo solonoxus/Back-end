@@ -1,6 +1,5 @@
 const fastify = require("fastify")({ logger: true });
 const path = require("path");
-const autoload = require("@fastify/autoload");
 require("dotenv").config();
 const connectDB = require("./config/database");
 

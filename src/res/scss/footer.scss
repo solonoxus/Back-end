@@ -1,0 +1,117 @@
+/* ======= Alert Box ======= */
+#alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: #ffeb3b;
+  color: #000000;
+  font-size: 14px;
+}
+
+#alert .alert-text {
+  flex: 1;
+  margin-left: 10px;
+}
+
+#alert #closebtn {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* ======= Footer ======= */
+.footer {
+  background-color: #c7b8b8;
+  color: #333;
+  padding: 40px 20px;
+}
+
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.footer-col {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-col h4 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ff424e;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 10px;
+}
+
+.footer-col ul li a {
+  color: #000000;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-col ul li a:hover {
+  color: #ff424e;
+}
+
+.social-links {
+  display: flex;
+  gap : 15px;
+}
+
+.social-links li a img {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s;
+}
+
+.social-links li a img:hover {
+  transform: scale(1.1);
+}
+
+.footer-col form {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-col form input {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.footer-col form button {
+  padding: 10px 15px;
+  background-color: #ff424e;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.footer-col form button:hover {
+  background-color: #e33d3d;
+}
+
+.footer-bottom {
+  text-align: center;
+  font-size: 17px;
+  color: #000000;
+}

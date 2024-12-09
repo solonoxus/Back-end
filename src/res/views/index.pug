@@ -1,0 +1,93 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible", content="ie=edge")
+    title Thế giới điện thoại
+    link(rel="shortcut icon" href="img/favicon.ico")
+
+    //- Load font awesome icons
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous")
+
+    //- owl carousel libraries
+    link(rel="stylesheet" href="js/owlcarousel/owl.carousel.min.css")
+    link(rel="stylesheet" href="js/owlcarousel/owl.theme.default.min.css")
+    script(src="js/Jquery/Jquery.min.js")
+    script(src="js/owlcarousel/owl.carousel.min.js")
+
+    //- tidio - live chat
+    // script(src="//code.tidio.co/bfiiplaaohclhqwes5xivoizqkq56guu.js")
+
+    //- our files
+    // css
+    link(rel="stylesheet" href="css/style.css")
+    link(rel="stylesheet" href="css/topnav.css")
+    link(rel="stylesheet" href="css/header.css")
+    link(rel="stylesheet" href="css/banner.css")
+    link(rel="stylesheet" href="css/taikhoan.css")
+    link(rel="stylesheet" href="css/trangchu.css")
+    link(rel="stylesheet" href="css/home_products.css")
+    link(rel="stylesheet" href="css/pagination_phantrang.css")
+    link(rel="stylesheet" href="css/footer.css")
+    // js
+    script(src="data/products.js")
+    script(src="js/classes.js")
+    script(src="js/dungchung.js")
+    script(src="js/trangchu.js")
+
+  body
+    script. 
+      addTopNav();
+
+    section
+      script. 
+        addHeader();
+
+      .banner
+        .owl-carousel.owl-theme
+
+      img(src="img/banners/blackFriday.gif" alt="" style="width: 100%")
+
+      br
+      .companyMenu.group.flexContain
+
+      .flexContain
+        .pricesRangeFilter.dropdown
+          button.dropbtn Giá tiền
+          .dropdown-content
+        .promosFilter.dropdown
+          button.dropbtn Khuyến mãi
+          .dropdown-content
+        .starFilter.dropdown
+          button.dropbtn Số lượng sao
+          .dropdown-content
+        .sortFilter.dropdown
+          button.dropbtn Sắp xếp
+          .dropdown-content
+
+      .choosedFilter.flexContain
+        a#deleteAllFilter(href="#" style="display: none;")
+          h3 Xóa bộ lọc
+      hr
+
+      .contain-products(style="display:none")
+        .filterName
+          input(type="text" placeholder="Lọc trong trang theo tên..." onkeyup="filterProductsName(this)")
+        ul#products.homeproduct.group.flexContain
+          #khongCoSanPham
+            i.fa.fa-times-circle
+            | Không có sản phẩm nào
+        .pagination
+
+      .contain-khungSanPham
+
+    script. 
+      addContainTaiKhoan();
+      addPlc();
+
+    .footer
+      script. 
+        addFooter();
+
+    i.fa.fa-arrow-up#goto-top-page(onclick="gotoTop()")

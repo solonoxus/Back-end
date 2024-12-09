@@ -1,0 +1,53 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible" content="ie=edge")
+    title Giới thiệu - Thế giới điện thoại
+    link(rel="shortcut icon" href="img/favicon.ico")
+
+    //- Load font awesome icons
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous")
+    
+    //- our files
+    //- css
+    link(rel="stylesheet" href="css/style.css")
+    link(rel="stylesheet" href="css/topnav.css")
+    link(rel="stylesheet" href="css/header.css")
+    link(rel="stylesheet" href="css/taikhoan.css")
+    link(rel="stylesheet" href="css/footer.css")
+    link(rel="stylesheet" href="css/gioithieu.css")
+
+    //- js
+    script(src="data/products.js")
+    script(src="js/dungchung.js")
+    script.
+      window.onload = function () {
+        khoiTao();
+        // thêm tags (từ khóa) vào khung tìm kiếm
+        var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
+        for (var t of tags) addTags(t, "index.html?search=" + t);
+      }
+
+  body
+    script addTopNav()
+
+    section(style="min-height: 85vh")
+      script addHeader()
+      
+      .page-gt
+        h4.page-header Giới thiệu về công ty
+        .page-info
+          p Được thành lập vào năm 2005, công ty chúng tôi là một trong những đơn vị tiên phong trong lĩnh vực phân phối các sản phẩm công nghệ cao tại Việt Nam. Với hơn 15 năm kinh nghiệm, chúng tôi đã và đang cung cấp những sản phẩm chất lượng đến từ các thương hiệu nổi tiếng trên thế giới, phục vụ nhu cầu ngày càng cao của khách hàng.
+          p Chúng tôi tự hào về đội ngũ nhân viên chuyên nghiệp và tận tâm, luôn mang đến cho khách hàng những sản phẩm công nghệ tiên tiến nhất. Bên cạnh việc cung cấp sản phẩm, chúng tôi còn chú trọng đến việc hỗ trợ khách hàng với dịch vụ hậu mãi chu đáo và chính sách bảo hành hợp lý.
+          p Với mục tiêu trở thành lựa chọn hàng đầu trong ngành phân phối sản phẩm công nghệ, chúng tôi cam kết mang đến cho khách hàng những sản phẩm chất lượng cao, giá cả hợp lý và dịch vụ hoàn hảo. Chúng tôi cũng đang không ngừng phát triển và mở rộng hệ thống phân phối nhằm đáp ứng tốt hơn nhu cầu của khách hàng trên toàn quốc.
+          p Chúng tôi luôn coi sự hài lòng của khách hàng là ưu tiên hàng đầu và không ngừng nỗ lực để tạo ra một môi trường mua sắm tin cậy, thuận tiện và an toàn. Công ty mong muốn trở thành đối tác lâu dài, đáng tin cậy của mọi khách hàng.
+          p Chúng tôi xin gửi lời cảm ơn chân thành đến tất cả khách hàng đã, đang và sẽ đồng hành cùng chúng tôi trên hành trình phát triển và thành công.
+
+    script addContainTaiKhoan()
+
+    .footer
+      script addFooter()
+      
+    i.fa.fa-arrow-up#goto-top-page(onclick="gotoTop()")

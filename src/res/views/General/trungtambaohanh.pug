@@ -1,0 +1,94 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible", content="ie=edge")
+    title Trung tâm bảo hành - Thế giới điện thoại
+    link(rel="shortcut icon", href="img/favicon.ico")
+
+    //- Load font awesome icons
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", crossorigin="anonymous")
+
+    //- our files
+    // css
+    link(rel="stylesheet", href="css/style.css")
+    link(rel="stylesheet", href="css/topnav.css")
+    link(rel="stylesheet", href="css/header.css")
+    link(rel="stylesheet", href="css/taikhoan.css")
+    link(rel="stylesheet", href="css/footer.css")
+    link(rel="stylesheet", href="css/baohanh.css")
+    
+    // js
+    script(src="data/products.js")
+    script(src="js/dungchung.js")
+
+    script.
+      window.onload = function () {
+        khoiTao();
+        // thêm tags (từ khóa) vào khung tìm kiếm
+        var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
+        for (var t of tags) addTags(t, "index.html?search=" + t);
+      }
+
+  body
+    script.
+      addTopNav();
+
+    section(style="min-height: 85vh")
+      script.
+        addHeader();
+
+      table
+        tr
+          td(colspan="4", class="header-table")
+            marquee(behavior="scroll", direction="left") Các trung tâm bảo hành của Smartphone Store
+        tr
+          th(class="col1") STT
+          th(class="col2") Địa chỉ
+          th(class="col3") Điện thoại
+          th(class="col4") Thời gian làm việc
+
+        script.
+          var trungtam = [
+            ["25A Nguyễn Huệ, P. Lê Lợi, Tp. Huế, Tỉnh Thừa Thiên Huế", "(0234)-3568 789", "8h00 - 17h30"],
+            ["17 Lê Duẩn, P. Đông Hà, Tp. Quảng Trị, Tỉnh Quảng Trị", "(0233)-3826 478", "7h30 - 16h30"],
+            ["123 Trần Hưng Đạo, P. Ninh Giang, Tp. Hải Dương, Tỉnh Hải Dương", "(0220)-3840 921", "8h00 - 17h00"],
+            ["89 Lý Thường Kiệt, P. Đống Đa, Tp. Vinh, Tỉnh Nghệ An", "(0238)-3821 111", "8h00 - 17h00"],
+            ["45 Hùng Vương, P. Điện Biên, Tp. Thanh Hóa, Tỉnh Thanh Hóa", "(037)-3847 902", "8h30 - 17h30"],
+            ["78 Nguyễn Công Trứ, P. Bắc Sơn, Tp. Hà Tĩnh, Tỉnh Hà Tĩnh", "(0239)-3890 456", "8h00 - 17h00"],
+            ["14B Trần Phú, P. Bắc Lý, Tp. Đồng Hới, Tỉnh Quảng Bình", "(0232)-3827 888", "7h30 - 17h00"],
+            ["56 Lương Văn Can, P. Hồng Hà, Tp. Yên Bái, Tỉnh Yên Bái", "(0216)-3894 561", "8h00 - 17h00"],
+            ["89 Phạm Văn Đồng, P. Quyết Thắng, Tp. Sơn La, Tỉnh Sơn La", "(0212)-3832 675", "8h30 - 17h30"],
+            ["32 Nguyễn Trãi, P. Tân Thịnh, Tp. Thái Nguyên, Tỉnh Thái Nguyên", "(0208)-3841 230", "8h00 - 17h00"],
+            ["123 Lê Hồng Phong, P. Tân Quang, Tp. Tuyên Quang, Tỉnh Tuyên Quang", "(0207)-3893 456", "7h30 - 17h00"],
+            ["45 Hoàng Văn Thụ, P. Chi Lăng, Tp. Lạng Sơn, Tỉnh Lạng Sơn", "(0253)-3814 789", "8h00 - 17h30"],
+            ["89 Đinh Tiên Hoàng, P. Hòa Cường, Tp. Đà Nẵng, Tỉnh Đà Nẵng", "(0236)-3856 123", "8h00 - 17h30"],
+            ["65 Nguyễn Văn Cừ, P. Bến Thủy, Tp. Vinh, Tỉnh Nghệ An", "(0238)-3817 902", "8h30 - 17h00"],
+            ["34 Hùng Vương, P. Trường Sơn, Tp. Sầm Sơn, Tỉnh Thanh Hóa", "(037)-3842 678", "7h30 - 16h30"]
+          ]
+
+          for (var i = 0; i < trungtam.length; i++) {
+            var link = 'https://maps.google.com/maps?q=' + trungtam[i][0];
+            document.write(`
+              <tr>
+                <td class="col1">` + (i + 1) + `</td>
+                <td class="col2"> 
+                  <a href="`+ link + `" target="_blank" title="Xem bản đồ">
+                    ` + trungtam[i][0] + `
+                  </a>
+                </td>
+                <td class="col3">` + trungtam[i][1] + `</td>
+                <td class="col4">` + trungtam[i][2] + `</td>
+              </tr>
+            `)
+          }
+
+    script.
+      addContainTaiKhoan(); 
+
+    div(class="footer")
+      script.
+        addFooter();
+
+    i(class="fa fa-arrow-up", id="goto-top-page", onclick="gotoTop()")

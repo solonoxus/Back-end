@@ -1,0 +1,170 @@
+:root {
+    --primary-color: #ece7e9; /* Màu nền chính */
+    --secondary-color: #333333; /* Màu chữ chính */
+    --button-color: #0C9; /* Màu nền nút */
+    --hover-color: #2a8e4c; /* Màu nền khi hover */
+    --light-gray: #f8f8f8; /* Màu nền nhẹ cho phần tử */
+    --border-radius: 8px; /* Bo góc cho các phần tử */
+    --padding: 15px; /* Khoảng cách padding chung */
+    --transition-time: 0.3s; /* Thời gian cho hiệu ứng */
+}
+
+/* Hiệu ứng fade-in cho các phần tử */
+.fade-in {
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) forwards;
+}
+
+/* Định nghĩa hiệu ứng fade-in */
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Phần thân liên hệ */
+.body-lienhe {
+    margin: 30px auto;
+    width: 80%;
+    padding: 20px;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform var(--transition-time);
+}
+
+/* Header của phần liên hệ */
+.lienhe-header {
+    height: 50px;
+    font-weight: bold;
+    line-height: 50px;
+    padding-left: 20px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    font-size: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 0.5s forwards;
+}
+
+/* Phần thông tin liên hệ */
+.lienhe-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5%;
+    margin-top: 20px;
+}
+
+.info-left,
+.info-right {
+    background-color: white;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 0.7s forwards;
+}
+
+/* Định dạng iframe */
+iframe {
+    width: 100%;
+    height: 300px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 1s forwards;
+}
+
+/* Phần gửi thông tin */
+.guithongtin {
+    width: 100%;
+    background-color: white;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 1.2s forwards;
+}
+
+/* Định dạng bảng */
+table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 1.4s forwards;
+}
+
+/* Định dạng ô input trong bảng */
+table input {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Định dạng nút trong bảng */
+table button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Hiệu ứng hover cho nút */
+table button:hover {
+    background: var(--hover-color);
+    transform: translateY(-2px);
+}
+
+.thongtinnhom {
+    background-color: white;
+    padding: var(--padding);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: fadeInAnimation var(--transition-time) 1.5s forwards;
+}
+
+/* Định dạng bảng trong phần thông tin nhóm */
+.thongtinnhom table td,
+.thongtinnhom table th {
+    border: 1px solid #0C9;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    border-radius: var(--border-radius);
+}
+
+/* Định dạng hàng chẵn trong bảng */
+.thongtinnhom tr:nth-of-type(even) {
+    background-color: #f9f9f9;
+}
+
+
+/* Xử lý trường hợp bị tràn cho các phần tử floated */
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}

@@ -1,0 +1,92 @@
+/* Bố cục chung của trang */
+.page-gt {
+  background-color: #f1f2f6; /* Màu nền nhẹ nhàng, hiện đại */
+  padding: 40px;
+  border-radius: 20px; /* Bo góc mềm mại hơn */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); /* Bóng mờ mạnh mẽ hơn */
+  margin-bottom: 50px; /* Khoảng cách dưới cùng lớn hơn */
+  opacity: 0;
+  margin-top: 70px;
+  transform: translateY(50px);
+  animation: slideIn 1s ease-out forwards; /* Hiệu ứng mượt mà hơn */
+}
+
+/* Tiêu đề trang */
+.page-header {
+  font-size: 36px; /* Kích thước chữ lớn, dễ đọc */
+  color: #3498db; /* Màu xanh lam hiện đại */
+  font-weight: 600; /* Độ đậm vừa phải */
+  text-align: center;
+  margin-bottom: 30px;
+  font-family: "Roboto", sans-serif; /* Phông chữ sang trọng */
+  text-transform: uppercase;
+  letter-spacing: 4px; /* Khoảng cách giữa chữ rộng hơn */
+  transition: color 0.4s ease, transform 0.3s ease; /* Hiệu ứng chuyển màu và chuyển động */
+}
+
+.page-header:hover {
+  color: #8e44ad; /* Màu tím khi hover */
+  transform: scale(1.05); /* Tăng kích thước nhẹ khi hover */
+}
+
+/* Thông tin trang */
+.page-info p {
+  font-size: 18px; /* Kích thước chữ dễ đọc hơn */
+  line-height: 1.8;
+  color: #2c3e50; /* Màu chữ đậm, dễ đọc */
+  margin-bottom: 22px;
+  text-align: justify;
+  transition: color 0.4s ease, transform 0.3s ease; /* Hiệu ứng chuyển màu và phóng đại */
+}
+
+.page-info p:hover {
+  color: #e74c3c; /* Màu đỏ nổi bật khi hover */
+  transform: scale(1.03); /* Phóng to nhẹ */
+}
+
+.page-info p br {
+  margin-bottom: 20px; /* Khoảng cách giữa các đoạn dài hơn */
+}
+
+.page-info p::first-letter {
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* Hiệu ứng slide-in cho trang */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tạo hiệu ứng cho background khi di chuột */
+.page-gt:hover {
+  background-color: #ecf0f1; /* Đổi nền khi hover */
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2); /* Làm bóng mạnh hơn */
+  transform: translateY(0); /* Đẩy lên khi hover */
+  transition: background-color 0.4s ease, transform 0.4s ease;
+}
+
+/* Tạo hiệu ứng hover cho các đoạn văn */
+.page-info p:hover::first-letter {
+  color: #e74c3c; /* Màu đỏ cho chữ cái đầu tiên khi hover */
+}
+
+/* Tạo các hiệu ứng khác cho page-info */
+.page-info p:hover {
+  color: #e74c3c; /* Đổi màu chữ khi hover */
+  transform: scale(1.05); /* Phóng to nhẹ */
+}
+
+/* Đặt thêm hiệu ứng cho các box */
+.page-gt:hover {
+  background-color: #ecf0f1;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+}
