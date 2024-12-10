@@ -10,7 +10,7 @@ window.onload = function () {
 
     // thêm tags (từ khóa) vào khung tìm kiếm
     var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
-    for (var t of tags) addTags(t, "index.html?search=" + t);
+    for (var t of tags) addTags(t, "../../views/index.html?search=" + t);
 
     currentUser = getCurrentUser();
 
@@ -263,7 +263,7 @@ function addDonHang(dh) {
                 <tr>
                     <td>` + (i + 1) + `</td>
                     <td class="noPadding imgHide">
-                        <a target="_blank" href="chitietsanpham.html?` + p.name.split(' ').join('-') + `" title="Xem chi tiết">
+                        <a target="_blank" href="../../views/Product/chitietsanpham.html?` + p.name.split(' ').join('-') + `" title="Xem chi tiết">
                             ` + p.name + `
                             <img src="` + p.img + `">
                         </a>

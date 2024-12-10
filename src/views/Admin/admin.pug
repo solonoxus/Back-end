@@ -1,0 +1,263 @@
+doctype html
+html(lang="vi")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+
+        title Admin - Thế giới điện thoại
+        link(rel="shortcut icon", href="../../public/img/favicon.ico")
+
+        // Load font awesome icons
+        link(
+            rel="stylesheet", 
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
+            crossorigin="anonymous"
+        )
+
+        // Chart JS
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js")
+
+        // Our files
+        link(rel="stylesheet", href="../../public/css/admin/style.css")
+        link(rel="stylesheet", href="../../public/css/admin/progress.css")
+
+        script(src="../../public/js/data/products.js")
+        script(src="../../public/js/classes.js")
+        script(src="../../public/js/dungchung.js")
+        script(src="../../public/js/admin.js")
+
+    body
+        header
+            h2 SmartPhone Store - Admin
+
+        // Menu
+        aside.sidebar
+            ul.nav
+                li.nav-title MENU
+                li.nav-item
+                    a.nav-link.active
+                        i.fa.fa-home
+                        | Trang Chủ
+                li.nav-item
+                    a.nav-link
+                        i.fa.fa-th-large
+                        | Sản Phẩm
+                li.nav-item
+                    a.nav-link
+                        i.fa.fa-file-text-o
+                        | Đơn Hàng
+                li.nav-item
+                    a.nav-link
+                        i.fa.fa-address-book-o
+                        | Khách Hàng
+                li.nav-item
+                    hr
+                li.nav-item
+                    a.nav-link(href="index.html", onclick="logOutAdmin(); return true;")
+                        i.fa.fa-arrow-left
+                        | Đăng xuất (về Trang chủ)
+
+        // Khung hiển thị chính
+        .main
+            .home
+                .canvasContainer
+                    canvas#myChart1
+                .canvasContainer
+                    canvas#myChart2
+                .canvasContainer
+                    canvas#myChart3
+                .canvasContainer
+                    canvas#myChart4
+
+            // Sản Phẩm
+            .sanpham
+                table.table-header
+                    tr
+                        th(title="Sắp xếp", style="width: 5%", onclick="sortProductsTable('stt')") Stt 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 10%", onclick="sortProductsTable('masp')") Mã 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 40%", onclick="sortProductsTable('ten')") Tên 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 15%", onclick="sortProductsTable('gia')") Giá 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 15%", onclick="sortProductsTable('khuyenmai')") Khuyến mãi 
+                            i.fa.fa-sort
+                        th(style="width: 15%") Hành động
+
+                .table-content
+
+                .table-footer
+                    select(name="kieuTimSanPham")
+                        option(value="ma") Tìm theo mã
+                        option(value="ten") Tìm theo tên
+                    input(type="text", placeholder="Tìm kiếm...", onkeyup="timKiemSanPham(this)")
+                    button(onclick="document.getElementById('khungThemSanPham').style.transform = 'scale(1)'; autoMaSanPham()")
+                        i.fa.fa-plus-square
+                        | Thêm sản phẩm
+
+                #khungThemSanPham.overlay
+                    span.close(onclick="this.parentElement.style.transform = 'scale(0)';") &times;
+                    table.overlayTable.table-outline.table-content.table-header
+                        tr
+                            th(colspan="2") Thêm Sản Phẩm
+                        tr
+                            td Mã sản phẩm:
+                            td
+                                input#maspThem(type="text")
+                        tr
+                            td Tên sản phẩm:
+                            td
+                                input(type="text")
+                        tr
+                            td Hãng:
+                            td
+                                select(name="chonCompany", onchange="autoMaSanPham(this.value)")
+                                    script.
+                                        var company = ["Apple", "Samsung", "Oppo", "Nokia", "Huawei", "Xiaomi","Realme", "Vivo", "Philips", "Mobell", "Mobiistar", "Itel","Coolpad", "HTC", "Motorola"];
+                                        for(var c of company) {
+                                            document.writeln(`<option value="`+c+`">`+c+`</option>`);
+                                        }
+                        tr
+                            td Hình:
+                            td
+                                img.hinhDaiDien#anhDaiDienSanPhamThem(src="")
+                                input(type="file", accept="image/*", onchange="capNhatAnhSanPham(this.files, 'anhDaiDienSanPhamThem')")
+                        tr
+                            td Giá tiền:
+                            td
+                                input(type="text")
+                        tr
+                            td Số sao (số nguyên 0->5):
+                            td
+                                input(type="text")
+                        tr
+                            td Đánh giá (số nguyên):
+                            td
+                                input(type="text")
+                        tr
+                            td Khuyến mãi:
+                            td
+                                select
+                                    option(value="") Không
+                                    option(value="tragop") Trả góp
+                                    option(value="giamgia") Giảm giá
+                                    option(value="giareonline") Giá rẻ online
+                                    option(value="moiramat") Mới ra mắt
+                        tr
+                            td Giá trị khuyến mãi:
+                            td
+                                input(type="text", placeholder="")
+                        tr
+                            th(colspan="2") Thông số kĩ thuật
+                        tr
+                            td Màn hình:
+                            td
+                                input(type="text")
+                        tr
+                            td Hệ điều hành:
+                            td
+                                input(type="text")
+                        tr
+                            td Camara sau:
+                            td
+                                input(type="text")
+                        tr
+                            td Camara trước:
+                            td
+                                input(type="text")
+                        tr
+                            td CPU:
+                            td
+                                input(type="text")
+                        tr
+                            td RAM:
+                            td
+                                input(type="text")
+                        tr
+                            td Bộ nhớ trong:
+                            td
+                                input(type="text")
+                        tr
+                            td Thẻ nhớ:
+                            td
+                                input(type="text")
+                        tr
+                            td Dung lượng Pin:
+                            td
+                                input(type="text")
+                        tr
+                            td(colspan="2", class="table-footer")
+                                button(onclick="themSanPham()") THÊM
+
+                #khungSuaSanPham.overlay
+
+            // Đơn Hàng
+            .donhang
+                table.table-header
+                    tr
+                        th(title="Sắp xếp", style="width: 5%", onclick="sortDonHangTable('stt')") Stt 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 13%", onclick="sortDonHangTable('madon')") Mã đơn 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 7%", onclick="sortDonHangTable('khach')") Khách 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 20%", onclick="sortDonHangTable('sanpham')") Sản phẩm 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 15%", onclick="sortDonHangTable('tongtien')") Tổng tiền 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 10%", onclick="sortDonHangTable('ngaygio')") Ngày giờ 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 10%", onclick="sortDonHangTable('trangthai')") Trạng thái 
+                            i.fa.fa-sort
+                        th(style="width: 10%") Hành động
+
+                .table-content
+
+                .table-footer
+                    .timTheoNgay
+                        | Từ ngày: 
+                        input#fromDate(type="date")
+                        | Đến ngày: 
+                        input#toDate(type="date")
+
+                        button(onclick="locDonHangTheoKhoangNgay()")
+                            i.fa.fa-search
+                            | Tìm
+
+                    select(name="kieuTimDonHang")
+                        option(value="ma") Tìm theo mã đơn
+                        option(value="khachhang") Tìm theo tên khách hàng
+                        option(value="trangThai") Tìm theo trạng thái
+                    input(type="text", placeholder="Tìm kiếm...", onkeyup="timKiemDonHang(this)")
+
+            // Khách hàng
+            .khachhang
+                table.table-header
+                    tr
+                        th(title="Sắp xếp", style="width: 5%", onclick="sortKhachHangTable('stt')") Stt 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 15%", onclick="sortKhachHangTable('hoten')") Họ tên 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 20%", onclick="sortKhachHangTable('email')") Email 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 20%", onclick="sortKhachHangTable('taikhoan')") Tài khoản 
+                            i.fa.fa-sort
+                        th(title="Sắp xếp", style="width: 10%", onclick="sortKhachHangTable('matkhau')") Mật khẩu 
+                            i.fa.fa-sort
+                        th(style="width: 10%") Hành động
+
+                .table-content
+
+                .table-footer
+                    select(name="kieuTimKhachHang")
+                        option(value="ten") Tìm theo họ tên
+                        option(value="email") Tìm theo email
+                        option(value="taikhoan") Tìm theo tài khoản
+                    input(type="text", placeholder="Tìm kiếm...", onkeyup="timKiemNguoiDung(this)")
+                    button(onclick="openThemNguoiDung()")
+                        i.fa.fa-plus-square
+                        | Thêm người dùng
+
+        footer

@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const Product = require('../models/productsModel');
 
 exports.getCart = async (req, reply) => {
   // Lấy giỏ hàng mẫu

@@ -1,0 +1,107 @@
+doctype html
+html(lang="vi")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        
+        title Thế giới điện thoại
+        link(rel="shortcut icon", href="../../public/img/favicon.ico")
+
+        // Load font awesome icons
+        link(
+            rel="stylesheet", 
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
+            crossorigin="anonymous"
+        )
+
+        // owl carousel libraries cho hình nhỏ
+        link(rel="stylesheet", href="../../public/js/owlcarousel/owl.carousel.min.css")
+        link(rel="stylesheet", href="../../public/js/owlcarousel/owl.theme.default.min.css")
+        script(src="../../public/js/Jquery/Jquery.min.js")
+        script(src="../../public/js/owlcarousel/owl.carousel.min.js")
+
+        // our files
+        // css
+        link(rel="stylesheet", href="../../public/css/style.css")
+        link(rel="stylesheet", href="../../public/css/topnav.css")
+        link(rel="stylesheet", href="../../public/css/header.css")
+        link(rel="stylesheet", href="../../public/css/taikhoan.css")
+        link(rel="stylesheet", href="../../public/css/trangchu.css")
+        link(rel="stylesheet", href="../../public/css/home_products.css")
+        link(rel="stylesheet", href="../../public/css/chitietsanpham.css")
+        link(rel="stylesheet", href="../../public/css/footer.css")
+        
+        // js
+        script(src="../../public/js/data/products.js")
+        script(src="../../public/js/classes.js")
+        script(src="../../public/js/dungchung.js")
+        script(src="../../public/js/chitietsanpham.js")
+
+    body
+        script addTopNav();
+
+        section
+            script addHeader();
+
+            #productNotFound(
+                style="min-height: 50vh; text-align: center; margin: 50px; display: none;"
+            )
+                h1(style="color: red; margin-bottom: 10px;") Không tìm thấy sản phẩm
+                a(href="index.html", style="text-decoration: underline;") Quay lại trang chủ
+
+            .chitietSanpham(style="margin-bottom: 100px")
+                h1 Điện thoại 
+                .rating
+                .rowdetail.group
+                    .picture
+                        img(src="", onclick="opencertain()")
+                    
+                    .price_sale
+                        .area_price
+                        
+                        .ship(style="display: none;")
+                            img(src="img/chitietsanpham/clock-152067_960_720.png")
+                            div NHẬN HÀNG TRONG 1 GIỜ
+                        
+                        .area_promo
+                            strong khuyến mãi
+                            .promo
+                                img(src="img/chitietsanpham/icon-tick.png")
+                                #detailPromo
+                        
+                        .policy
+                            div
+                                img(src="img/chitietsanpham/box.png")
+                                p Trong hộp có: Sạc, Tai nghe, Sách hướng dẫn, Cây lấy sim, Ốp lưng 
+                            div
+                                img(src="img/chitietsanpham/icon-baohanh.png")
+                                p Bảo hành chính hãng 12 tháng.
+                            .last
+                                img(src="img/chitietsanpham/1-1.jpg")
+                                p 1 đổi 1 trong 1 tháng nếu lỗi, đổi sản phẩm tại nhà trong 1 ngày.
+                        
+                        .area_order
+                            a.buy_now(onclick="themVaoGioHang(maProduct, nameProduct);")
+                                b
+                                    i.fa.fa-cart-plus
+                                    |  Thêm vào giỏ hàng
+                                p Giao trong 1 giờ hoặc nhận tại cửa hàng
+                    
+                    .info_product
+                        h2 Thông số kỹ thuật
+                        ul.info
+
+                // Commented out section from original HTML
+                //- #overlaycertainimg.overlaycertainimg
+                //-     .close(onclick="closecertain()") &times;
+                //-     .overlaycertainimg-content
+                //-         img#bigimg.bigimg(src="img/chitietsanpham/oppo-f9-red-2-400x460.png")
+                //-         .div_smallimg.owl-carousel
+
+            #goiYSanPham
+
+        script addContainTaiKhoan();
+
+        .footer
+            script addFooter();

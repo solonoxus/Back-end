@@ -122,19 +122,6 @@ function addThongKe() {
         colors,
     ));
 
-    // var doughnutChart = copyObject(dataChart);
-    //     doughnutChart.type = 'doughnut';
-    // addChart('myChart2', doughnutChart);
-
-    // var pieChart = copyObject(dataChart);
-    //     pieChart.type = 'pie';
-    // addChart('myChart3', pieChart);
-
-    // var lineChart = copyObject(dataChart);
-    //     lineChart.type = 'line';
-    // addChart('myChart4', lineChart);
-}
-
 // ======================= Các Tab =========================
 function addEventChangeTab() {
     var sidebar = document.getElementsByClassName('sidebar')[0];
@@ -418,7 +405,7 @@ function addKhungSuaSanPham(masp) {
             <td>
                 <select>`
                     
-    var company = ["Apple", "Samsung", "Oppo", "Nokia", "Huawei", "Xiaomi","Realme", "Vivo", "Philips", "Mobell", "Mobiistar", "Itel","Coolpad", "HTC", "Motorola"];
+    var company = ["Apple", "Samsung", "Oppo","Huawei", "Xiaomi"];
     for(var c of company) {
         if(sp.company == c)
             s += (`<option value="`+c+`" selected>`+c+`</option>`);
@@ -514,10 +501,6 @@ function addKhungSuaSanPham(masp) {
 
 // Cập nhật ảnh sản phẩm
 function capNhatAnhSanPham(files, id) {
-    // var url = '';
-    // if(files.length) url = window.URL.createObjectURL(files[0]);
-    
-    // document.getElementById(id).src = url;
 
     const reader = new FileReader();
     reader.addEventListener("load", function () {
@@ -912,8 +895,4 @@ function progress(percent, bg, width, height) {
             </div>`
 }
 
-// for(var i = 0; i < list_products.length; i++) {
-//     list_products[i].masp = list_products[i].company.substring(0, 3) + vitriCompany(list_products[i], i);
-// }
-
-// console.log(JSON.stringify(list_products));
+}

@@ -1,6 +1,6 @@
 const Product = require('../models/productsModel');
 
-exports.getProductDetail = async (req, reply) => {
+exports.getProductsList = async (req, reply) => {
   const productId = req.params.id;
   const product = await Product.findById(productId);
   if (!product) {

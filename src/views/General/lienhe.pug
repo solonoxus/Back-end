@@ -1,0 +1,157 @@
+../../public/doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible", content="ie=edge")
+    title Liên hệ - Thế giới điện thoại
+    link(rel="shortcut icon" href="../../public/img/favicon.ico")
+
+    // Load font awesome icons
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous")
+
+    // Our files
+    // CSS
+    link(rel="stylesheet" href="../../public/css/style.css")
+    link(rel="stylesheet" href="../../public/css/topnav.css")
+    link(rel="stylesheet" href="../../public/css/header.css")
+    link(rel="stylesheet" href="../../public/css/taikhoan.css")
+    link(rel="stylesheet" href="../../public/css/footer.css")
+    link(rel="stylesheet" href="../../public/css/lienhe.css")
+
+    // JS
+    script(src="../../public/js/data/products.js")
+    script(src="../../public/js/dungchung.js")
+    script(src="../../public/js/lienhe.js")
+
+  body
+    script addTopNav()
+
+    section(style="min-height: 85vh")
+      script addHeader()
+
+      .body-lienhe
+        .lienhe-header Liên hệ
+        .lienhe-info
+          .info-left
+            p
+              h2(style="color: gray") CÔNG TY CỔ PHẦN HAPPY - GROUP
+              br
+              | 
+              b Địa chỉ: 
+              | Trâu Qùy - Gia Lâm - Hà Nội 
+              br
+              br
+              b Telephone: 
+              | 1900 10002
+              br
+              br
+              b Hotline: 
+              | 09272004 - CSKH: 1900 1969
+              br
+              br
+              b Website: 
+              a(href="https://github.com/wanduss27") Github
+              br
+              br
+              b E-mail: 
+              | workforlife27@gmail.com
+              br
+              br
+              b Mã số thuế: 
+              | 01 02 03 04 05
+              br
+              br
+              b Tài khoản ngân hàng:
+              br
+              br
+              b Số TK: 
+              | 1234567898765432
+              br
+              br
+              b Tại Ngân hàng: 
+              | MB NGÂN HÀNG QUÂN ĐỘI
+              br
+              br
+              br
+              br
+              b Quý khách có thể gửi liên hệ tới chúng tôi bằng cách hoàn tất biểu mẫu dưới đây. Chúng tôi
+              | sẽ trả lời thư của quý khách, xin vui lòng khai báo đầy đủ. Hân hạnh phục vụ và chân thành
+              | cảm ơn sự quan tâm, đóng góp ý kiến đến Smartphone Store.
+
+          .info-right
+            iframe(
+              width="100%" 
+              height="450" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4670.412126038357!2d105.92918937603342!3d21.00505828859074!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135a94c1f882977%3A0x6d016e6656923f46!2sVietnam%20National%20University%20of%20Agriculture!5e1!3m2!1sfr!2s!4v1733017330014!5m2!1sfr!2s" 
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+            )
+            br
+
+        .lienhe-info
+          .guithongtin
+            p(style="font-size: 22px; color: gray") Gửi thông tin liên lạc cho chúng tôi:
+            hr
+            form(name="formlh" onsubmit="return nguoidung()")
+              table(cellspacing="10px")
+                tr
+                  td Họ và tên
+                  td 
+                    input(type="text" name="ht" size="40" maxlength="40" placeholder="Họ tên" autocomplete="off" required)
+                tr
+                  td Điện thoại liên hệ
+                  td 
+                    input(type="text" name="sdt" size="40" maxlength="11" minlength="10" placeholder="Điện thoại" required)
+                tr
+                  td Địa chỉ Email
+                  td 
+                    input(type="email" name="em" size="40" placeholder="Email" autocomplete="off" required)
+                tr
+                  td Tiêu đề
+                  td 
+                    input(type="text" name="tde" size="40" maxlength="100" placeholder="Tiêu đề" required)
+                tr
+                  td Nội dung
+                  td 
+                    textarea(name="nd" rows="5" cols="44" maxlength="500" wrap="physical" placeholder="Nội dung liên hệ" required)
+                tr
+                  td
+                  td 
+                    button(type="submit") Gửi thông tin liên hệ
+          
+          .thongtinnhom
+            p(style="font-size: 22px; color: gray") Thông tin thành viên nhóm:
+            hr
+            table
+              tr
+                th Họ tên
+                th MSSV
+                th Giới tính
+                th Lớp
+                th Tỉ lệ công việc
+              script.
+                var thongtin = [
+                  ["Trần Văn Hoàng", "3117410091", "Nam", "DCT1175", "%"],
+                  ["Đàm Thế Hào", "3117410065", "Nam", "DCT1175", "%"],
+                  ["Huỳnh Trung Hiển", "3117410072", "Nam", "DCT1173", "%"],
+                  ["Hoàng Hiệp", "3117410074", "Nam", "DCT1175", "%"]
+                ]
+                thongtin.forEach(function(item) {
+                  document.write(`
+                    <tr>
+                      <td>${item[0]}</td>
+                      <td>${item[1]}</td>
+                      <td>${item[2]}</td>
+                      <td>${item[3]}</td>
+                      <td>${item[4]}</td>
+                    </tr>
+                  `);
+                });
+
+    script addContainTaiKhoan()
+    .footer
+      script addFooter()
+    i.fa.fa-arrow-up#goto-top-page(onclick="gotoTop()")

@@ -1,4 +1,5 @@
 const fastify = require('fastify');
+const path = require('path'); 
 
 const createFastify = () => {
   const app = fastify({logger: true});  
@@ -11,8 +12,8 @@ const createFastify = () => {
     root: 'src/res/views',
   });
 
-  app.register(require('fastify-static'), {
-    root: 'src/res',
+  app.register(require('@fastify/static'), {
+    root: path.join(__dirname, '../public'),
     prefix: '/public/',
   });
 

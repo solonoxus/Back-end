@@ -211,7 +211,7 @@ function logIn(form) {
         if (equalUser(newUser, ad)) {
             alert('Xin chào admin .. ');
             window.localStorage.setItem('admin', true);
-            window.location.assign('admin.html');
+            window.location.assign('../../views/Admin/admin.html');
             return false;
         }
     }
@@ -528,11 +528,11 @@ function addTopNav() {
             </div> <!-- End Social Topnav -->
 
             <ul class="top-nav-quicklink flexContain">
-                <li><a href="index.html"><i class="fa fa-home"></i> Trang chủ</a></li>
-                <li><a href="tintuc.html"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
-                <li><a href="gioithieu.html"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
-                <li><a href="trungtambaohanh.html"><i class="fa fa-wrench"></i> Bảo hành</a></li>
-                <li><a href="lienhe.html"><i class="fa fa-phone"></i> Liên hệ</a></li>
+                <li><a href="../../views/index.html"><i class="fa fa-home"></i> Trang chủ</a></li>
+                <li><a href="../../views/General/tintuc.html"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
+                <li><a href="../../views/includes/gioithieu.html"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
+                <li><a href="../../views/General/trungtambaohanh.html"><i class="fa fa-wrench"></i> Bảo hành</a></li>
+                <li><a href="../../views/General/lienhe.html"><i class="fa fa-phone"></i> Liên hệ</a></li>
             </ul> <!-- End Quick link -->
         </section><!-- End Section -->
     </div><!-- End Top Nav  -->`);
@@ -543,8 +543,8 @@ function addHeader() {
     document.write(`        
 	<div class="header group">
         <div class="logo">
-            <a href="index.html">
-                <img src="img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
+            <a href="../../views/index.html">
+                <img src="../img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
             </a>
         </div> <!-- End Logo -->
 
@@ -571,7 +571,7 @@ function addHeader() {
                         Tài khoản
                     </a>
                     <div class="menuMember hide">
-                        <a href="nguoidung.html">Trang người dùng</a>
+                        <a href="../../views/User/nguoidung.html">Trang người dùng</a>
                         <a onclick="if(window.confirm('Xác nhận đăng xuất ?')) logOut();">Đăng xuất</a>
                     </div>
 
@@ -605,7 +605,7 @@ function addFooter() {
 
     <!-- ============== Footer ============= -->
     <div class="copy-right">
-        <p><a href="index.html">LDD Phone Store</a> - All rights reserved © 2021 - Designed by
+        <p><a href="../../views/index.html">LDD Phone Store</a> - All rights reserved © 2021 - Designed by
             <span style="color: #eee; font-weight: bold">group 15th</span></p>
     </div>`);
 }
@@ -790,21 +790,6 @@ function auto_Get_Database() {
         // img
         var img = a.getElementsByTagName('img')[0].src;
         console.log(img);
-
-        // // rating
-        // var rating = a.getElementsByClassName('ratingresult')[0];
-        // var star = rating.getElementsByClassName('icontgdd-ystar').length;
-        // var rateCount = parseInt(rating.getElementsByTagName('span')[0].innerHTML);
-
-        // // promo
-        // var tragop = a.getElementsByClassName('installment');
-        // if(tragop.length) {
-
-        // }
-
-        // var giamgia = a.getElementsByClassName('discount').length;
-        // var giareonline = a.getElementsByClassName('shockprice').length;
-    }
 }
 
 function getThongTinSanPhamFrom_TheGioiDiDong() {
@@ -856,47 +841,5 @@ function getThongTinSanPhamFrom_TheGioiDiDong() {
 			})();`;
         document.body.appendChild(s);
     })();
+    }
 }
-
-// $('.taikhoan').find('input').on('keyup blur focus', function (e) {
-
-//     var $this = $(this),
-//         label = $this.prev('label');
-
-//     if (e.type === 'keyup') {
-//         if ($this.val() === '') {
-//             label.removeClass('active highlight');
-//         } else {
-//             label.addClass('active highlight');
-//         }
-//     } else if (e.type === 'blur') {
-//         if ($this.val() === '') {
-//             label.removeClass('active highlight');
-//         } else {
-//             label.removeClass('highlight');
-//         }
-//     } else if (e.type === 'focus') {
-
-//         if ($this.val() === '') {
-//             label.removeClass('highlight');
-//         } else if ($this.val() !== '') {
-//             label.addClass('highlight');
-//         }
-//     }
-
-// });
-
-// $('.tab a').on('click', function (e) {
-
-//     e.preventDefault();
-
-//     $(this).parent().addClass('active');
-//     $(this).parent().siblings().removeClass('active');
-
-//     target = $(this).attr('href');
-
-//     $('.tab-content > div').not(target).hide();
-
-//     $(target).fadeIn(600);
-
-// });

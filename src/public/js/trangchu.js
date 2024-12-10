@@ -2,15 +2,15 @@ window.onload = function () {
 	khoiTao();
 
 	// Thêm hình vào banner
-	addBanner("img/banners/banner0.gif", "img/banners/banner0.gif");
+	addBanner("../../public/img/banners/banner0.gif", "../../public/img/banners/banner0.gif");
 	var numBanner = 9; // Số lượng hình banner
 	for (var i = 1; i <= numBanner; i++) {
-		var linkimg = "img/banners/banner" + i + ".png";
+		var linkimg = "../../public/img/banners/banner" + i + ".png";
 		addBanner(linkimg, linkimg);
 	}
 
 	// Khởi động thư viện hỗ trợ banner - chỉ chạy khi đã tạo hình trong banner
-	var owl = $('.owl-carousel');
+	var owl = $('./owl-carousel');
 	owl.owlCarousel({
 		items: 1.5,
 		margin: 100,
@@ -26,14 +26,14 @@ window.onload = function () {
 
 	// thêm tags (từ khóa) vào khung tìm kiếm
 	var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
-	for (var t of tags) addTags(t, "index.html?search=" + t);
+	for (var t of tags) addTags(t, "../../views/index.html?search=" + t);
 
 	// Thêm danh sách hãng điện thoại
 	var company = ["Apple.jpg", "Samsung.jpg", "Oppo.jpg", "Nokia.jpg", "Huawei.jpg", "Xiaomi.png",
 		"Realme.png", "Vivo.jpg", "Philips.jpg", "Mobell.jpg", "Mobiistar.jpg", "Itel.jpg",
 		"Coolpad.png", "HTC.jpg", "Motorola.jpg"
 	];
-	for (var c of company) addCompany("img/company/" + c, c.slice(0, c.length - 4));
+	for (var c of company) addCompany("../../public/img/company/" + c, c.slice(0, c.length - 4));
 
 	// Thêm sản phẩm vào trang
 	var sanPhamPhanTich
@@ -254,7 +254,7 @@ function addKhungSanPham(tenKhung, color, filter, len, ele) {
 
 	// thêm nút xem tất cả rồi đóng tag
 	s += `	</div>
-			<a class="xemTatCa" href="index.html?` + filter.join('&') + `" style="` + borderA + `">
+			<a class="xemTatCa" href="../../views/index.html?` + filter.join('&') + `" style="` + borderA + `">
 				Xem tất cả ` + spResult.length + ` sản phẩm
 			</a>
 		</div> <hr>`;
