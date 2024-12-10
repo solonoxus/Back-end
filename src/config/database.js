@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
-const config = require("./config");
 
-const connectDB = async () => {
+const connectDatabase = async () => {
   try {
-    const conn=await mongoose.connect("mongodb://localhost:27017/sell", {
+    const conn=await mongoose.connect("mongodb://localhost:27017/", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -14,4 +13,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+module.exports = connectDatabase;

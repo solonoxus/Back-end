@@ -1,7 +1,7 @@
 /* Top Navigation */
 	.top-nav {
 		display: inline-block;
-		background: #f1f1f1;
+		background: #e63939;
 		width: 100%;
 		border-bottom: 1px #e1e1e1 solid;
 	}
@@ -13,14 +13,14 @@
 		}
 		.social-top-nav a {
 			display: table-cell;
-			padding: 5px;
+			padding: 5px 10px;
 			text-align: center;
 			font-size: 13px;
 			height: 2em;
 			width: 2em;
 			line-height: 2em;
-			color: gray;
-			background-color: #f1f1f1;
+			color: rgb(255, 255, 255);
+			background-color: #e63939;
 			transition-duration: .2s;
 		}
 		/* hightlight icon fb, google, youtube .... when hover */
@@ -42,7 +42,7 @@
 		}
 		.top-nav-quicklink li a {
 			display: block;
-			color: gray;
+			color: rgb(243, 243, 243);
 			padding: 8px 15px;
 			transition-duration: .15s;
 		}
