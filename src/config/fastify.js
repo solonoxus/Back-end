@@ -1,24 +1,28 @@
 const fastify = require('fastify');
-const path = require('path'); 
+const fastifyFormBody = require('@fastify/formbody'); 
+const path = require('path');
 
 const createFastify = () => {
-  const app = fastify({logger: true});  
+  // Tạo instance Fastify
+  const app = fastify({ logger: true });
+
+  // Đăng ký plugin xử lý form-body
+  app.register(fastifyFormBody);
 
   // Đăng ký view engine
-  app.register(require('@fastify/view'),{
+  app.register(require('@fastify/view'), {
     engine: {
-      pug: require('pug')
+      pug: require('pug'),
     },
-    root: 'src/res/views',
+    root: path.join(__dirname, '../views'),
   });
 
+  // Đăng ký static files
   app.register(require('@fastify/static'), {
     root: path.join(__dirname, '../public'),
     prefix: '/public/',
   });
 
-  return app;
-
+  return app; 
 };
-
-module.exports = createFastify;
+module.exports = createFastify; 
