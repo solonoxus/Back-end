@@ -8,7 +8,7 @@ const app = createFastify();
 connectDatabase();
 
 // Đăng ký routes
-app.register(require("./router/homeRouters"), { prefix: "/home" });
+app.register(require("./router/homeRouters"), { prefix: "/" });
 app.register(require("./router/userRouters"), { prefix: "/user" });
 app.register(require("./router/cartRouters"), { prefix: "/cart" });
 app.register(require("./router/contactRouters"), { prefix: "/contact" });
