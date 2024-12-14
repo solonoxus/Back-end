@@ -1,6 +1,8 @@
-const cartRouters = require('../controllers/cartController');
-async function cartRoutes(fastify, options) {
-    fastify.get('/cart', cartRouters.getCart);
+const cartController = require('../controllers/cartController');
+
+async function routes(fastify, options) {
+  fastify.put('/:username', cartController.updateCart); // Cập nhật giỏ hàng
+  fastify.get('/:username', cartController.getCart); // Lấy giỏ hàng
 }
 
-module.exports = cartRoutes;
+module.exports = routes;

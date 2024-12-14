@@ -1,6 +1,8 @@
 const adminController = require('../controllers/adminController');
-async function adminRoutes(fastify, options) {
-    fastify.get('/admin', adminController.renderAdmin);
+
+async function routes(fastify, options) {
+  fastify.post('/login', adminController.loginAdmin);
+  // Các route khác cho admin...
 }
 
-module.exports = adminRoutes;
+module.exports = routes;

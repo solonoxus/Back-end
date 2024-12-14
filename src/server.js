@@ -13,7 +13,9 @@ app.register(require("./router/userRouters"), { prefix: "/user" });
 app.register(require("./router/cartRouters"), { prefix: "/cart" });
 app.register(require("./router/contactRouters"), { prefix: "/contact" });
 app.register(require("./router/adminRouters"), { prefix: "/admin" });
-app.register(require("./router/productsRouters"));
+app.register(require("./router/productsRouters"), { prefix: "/products" });
+app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
+app.register(require("./router/cartRouters"), { prefix: "/api/cart" });
 
 const start = async () => {
   try {

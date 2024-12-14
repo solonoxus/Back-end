@@ -8,12 +8,29 @@
 const Product = require("../models/productsModel");
 
 //lấy tất cả sản phẩm
-exports.getAllProducts = async (req, reply) => {
+exports.getAllProducts = async (_req, reply) => {
   try {
     const products = await Product.find();
     reply.view("products", { title: "Danh sách sản phẩm", products });
   } catch (err) {
     reply.status(500).send({ message: "Lỗi khi lấy sản phẩm!", error: err });
+  }
+};
+
+// Thêm phương thức mới cho admin
+exports.getProductsAdmin = async (_req, reply) => {
+  try {
+    const products = await Product.find();
+    return reply.send({
+      success: true,
+      products: products
+    });
+  } catch (err) {
+    reply.status(500).send({
+      success: false,
+      message: "Lỗi khi lấy sản phẩm!",
+      error: err
+    });
   }
 };
 
@@ -34,15 +51,17 @@ exports.getProductById = async (req, reply) => {
 //Tạo sản phẩm mới
 exports.createProduct = async (req, reply) => {
   try {
-    const { name, company, price } = req.body;
-    if (!name || !company || !price) {
-      return reply.status(400).send({ message: "Thiếu thông tin sản phẩm!" });
+    const { masp, name, company, price } = req.body;
+
+    const existingProduct = await Product.findOne({ masp });
+    if (existingProduct) {
+      return reply.status(400).send({ message: "Mã sản phẩm đã tồn tại!" });
     }
+
     const newProduct = new Product(req.body);
     await newProduct.save();
-    reply
-      .status(201)
-      .send({ message: "Tạo sản phẩm thành công!", product: newProduct });
+
+    reply.status(201).send({ message: "Thêm sản phẩm thành công!", product: newProduct });
   } catch (err) {
     reply.status(500).send({ message: "Lỗi khi tạo sản phẩm!", error: err });
   }
@@ -50,35 +69,54 @@ exports.createProduct = async (req, reply) => {
 
 //Cập nhật sản phẩm
 exports.updateProduct = async (req, reply) => {
-  const { id } = req.params;
+  const { masp } = req.params;
+  const updateData = req.body;
+
   try {
-    const updateProduct = await Product.findByIdAndUpdate(id, req.body, {
-      new: true
-    });
-    if (!updateProduct) {
+    const product = await Product.findOneAndUpdate({ masp }, updateData, { new: true });
+    if (!product) {
       return reply.status(404).send({ message: "Không tìm thấy sản phẩm!" });
     }
-    reply.send({
-      message: "Cập nhật sản phẩm thành công!",
-      product: updateProduct
-    });
+    reply.send({ message: "Cập nhật sản phẩm thành công!", product });
   } catch (err) {
-    reply
-      .status(500)
-      .send({ message: "Lỗi khi cập nhật sản phẩm!", error: err });
+    reply.status(500).send({ message: "Lỗi khi cập nhật sản phẩm!", error: err });
   }
 };
 
 //Xóa sản phẩm
 exports.deleteProduct = async (req, reply) => {
-  const { id } = req.params;
+  const { masp } = req.params;
   try {
-    const product = await Product.findByIdAndDelete(id);
+    const product = await Product.findOneAndDelete({ masp });
     if (!product) {
       return reply.status(404).send({ message: "Không tìm thấy sản phẩm!" });
     }
     reply.send({ message: "Xóa sản phẩm thành công!" });
   } catch (err) {
     reply.status(500).send({ message: "Lỗi khi xóa sản phẩm!", error: err });
+  }
+};
+exports.getStatistics = async (_req, reply) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    const totalRevenue = await calculateRevenue(); // Hàm tính doanh thu
+    const totalOrders = await countOrders(); // Hàm đếm đơn hàng
+    const totalUsers = await countUsers(); // Hàm đếm users
+
+    return reply.send({
+      success: true,
+      statistics: {
+        totalProducts,
+        totalRevenue,
+        totalOrders,
+        totalUsers
+      }
+    });
+  } catch (err) {
+    reply.status(500).send({
+      success: false,
+      message: "Lỗi khi lấy thống kê!",
+      error: err
+    });
   }
 };

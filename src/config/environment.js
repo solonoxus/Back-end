@@ -1,7 +1,8 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
-    PORT: process.env.PORT || 3000,
-    HOST: process.env.HOST || 'localhost',
-    MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/sanpham',
+  PORT: process.env.PORT || 3000,
+  HOST: process.env.HOST || "localhost",
+  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/sanpham",
+  JWT_SECRET: process.env.JWT_SECRET || "272004"
 };

@@ -211,7 +211,7 @@ function changeInfo(iTag, info) {
 
 
 // Phần thông tin đơn hàng
-function addTatCaDonHang(user) {
+async function addTatCaDonHang(user) {
     if (!user) {
         document.getElementsByClassName('listDonHang')[0].innerHTML = `
             <h3 style="width=100%; padding: 50px; color: red; font-size: 2em; text-align: center"> 
@@ -219,14 +219,20 @@ function addTatCaDonHang(user) {
             </h3>`;
         return;
     }
-    if (!user.donhang.length) {
+
+    // Gọi API để lấy danh sách đơn hàng
+    const response = await fetch(`/api/orders/user/${user._id}`);
+    const data = await response.json();
+
+    if (!data.success || !data.orders.length) {
         document.getElementsByClassName('listDonHang')[0].innerHTML = `
             <h3 style="width=100%; padding: 50px; color: green; font-size: 2em; text-align: center"> 
-                Xin chào ` + currentUser.username + `. Bạn chưa có đơn hàng nào.
+                Xin chào ` + user.username + `. Bạn chưa có đơn hàng nào.
             </h3>`;
         return;
     }
-    for (var dh of user.donhang) {
+
+    for (var dh of data.orders) {
         addDonHang(dh);
     }
 }

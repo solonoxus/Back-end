@@ -7,6 +7,7 @@
 
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const userService = require('../services/userService');
 
 // Lấy danh sách người dùng
 exports.getUser = async (request, reply) => {
@@ -23,7 +24,7 @@ exports.getUser = async (request, reply) => {
 // Đăng ký người dùng mới
 exports.createUser = async (request, reply) => {
   try {
-    const { name, email, password } = request.body;
+    const { name, email, password } = request.body; 
     if (!name || !email || !password) {
       return reply.status(400).send({ message: "Thiếu thông tin người dùng!" });
     }
@@ -32,13 +33,9 @@ exports.createUser = async (request, reply) => {
     const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
-    reply
-      .status(201)
-      .send({ message: "Đăng ký người dùng thành công!", user: newUser });
+    reply.status(201).send({ message: "Đăng ký người dùng thành công!", user: newUser });
   } catch (err) {
-    reply
-      .status(500)
-      .send({ message: "Lỗi khi đăng ký người dùng!", error: err });
+    reply.status(500).send({ message: "Lỗi khi đăng ký người dùng!", error: err });
   }
 };
 
@@ -58,15 +55,51 @@ exports.loginUser = async (req, reply) => {
 
 // Xóa người dùng
 exports.deleteUser = async (req, reply) => {
-    const { username } = req.params;
-    try {
-      const user = await User.findOneAndDelete({ username });
-      if (!user) {
-        return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
-      }
-      reply.send({ message: "Xóa người dùng thành công!" });
-    } catch (err) {
-      reply.status(500).send({ message: "Lỗi khi xóa người dùng!", error: err });
+  const { username } = req.params;
+  try {
+    const user = await User.findOneAndDelete({ username });
+    if (!user) {
+      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
     }
-  };
+    reply.send({ message: "Xóa người dùng thành công!" });
+  } catch (err) {
+    reply.status(500).send({ message: "Lỗi khi xóa người dùng!", error: err });
+  }
+};
+
+// Cập nhật trạng thái người dùng
+exports.updateUser = async (req, reply) => {
+  const { username } = req.params;
+  const updateData = req.body;
+  try {
+    const user = await User.findOneAndUpdate({ username }, updateData, { new: true });
+    if (!user) {
+      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
+    }
+    reply.send({ message: "Cập nhật người dùng thành công!", user });
+  } catch (err) {
+    reply.status(500).send({ message: "Lỗi khi cập nhật người dùng!", error: err });
+  }
+};
+
+exports.getCurrentUser = async (req, reply) => {
+  const user = await userService.getCurrentUser(req.headers.authorization);
+  if (!user) {
+    return reply.status(401).send({ message: 'Unauthorized' });
+  }
+  reply.send({ user });
+};
+
+exports.getListUser = async (req, reply) => {
+  const users = await userService.getListUser();
+  reply.send({ users });
+};
+
+exports.updateCurrentUser = async (req, reply) => {
+  const updatedUser = await userService.setCurrentUser(req.body);
+  if (!updatedUser) {
+    return reply.status(400).send({ message: 'Update failed' });
+  }
+  reply.send({ user: updatedUser });
+};
 
