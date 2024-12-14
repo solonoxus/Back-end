@@ -22,10 +22,10 @@ async function checkAdmin(username, pass) {
 }
 
 // Hàm khởi tạo, tất cả các trang đều cần
-function khoiTao() {
+async function khoiTao() {
   // get data từ localstorage
-  list_products = getListProducts() || list_products;
-  adminInfo = getListAdmin() || adminInfo;
+  list_products = await getListProducts() || list_products;
+  adminInfo =  await getListAdmin() || adminInfo;
 
   setupEventTaiKhoan();
   capNhat_ThongTin_CurrentUser();
@@ -34,12 +34,35 @@ function khoiTao() {
 
 // ========= Các hàm liên quan tới danh sách sản phẩm =========
 // Localstorage cho dssp: 'ListProducts
-function setListProducts(newList) {
-  window.localStorage.setItem("ListProducts", JSON.stringify(newList));
+async function setListProducts(products) {
+  // Gọi API để lưu danh sách sản phẩm vào server
+  const response = await fetch('/api/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ products }) // Gửi danh sách sản phẩm
+  });
+
+  if (response.ok) {
+    alert("Danh sách sản phẩm đã được lưu thành công!");
+  } else {
+    const errorData = await response.json();
+    alert("Lỗi: " + errorData.message);
+  }
 }
 
-function getListProducts() {
-  return JSON.parse(window.localStorage.getItem("ListProducts"));
+async function getListProducts() {
+  // Gọi API để lấy danh sách sản phẩm từ server
+  const response = await fetch('/api/products');
+  const data = await response.json();
+
+  if (data.success) {
+    return data.products; // Trả về danh sách sản phẩm
+  } else {
+    alert("Lỗi khi lấy danh sách sản phẩm: " + data.message);
+    return []; // Trả về mảng rỗng nếu có lỗi
+  }
 }
 
 function timKiemTheoTen(list, ten, soluong) {
@@ -114,8 +137,8 @@ function animateCartNumber() {
   }, 1200);
 }
 
-function themVaoGioHang(masp, tensp) {
-  var user = getCurrentUser();
+async function themVaoGioHang(masp, tensp) {
+  var user = await getCurrentUser(); // Lấy thông tin người dùng từ server
   if (!user) {
     alert("Bạn cần đăng nhập để mua hàng !");
     showTaiKhoan(true);
@@ -123,19 +146,13 @@ function themVaoGioHang(masp, tensp) {
   }
   if (user.off) {
     alert("Tài khoản của bạn hiện đang bị khóa nên không thể mua hàng!");
-    addAlertBox(
-      "Tài khoản của bạn đã bị khóa bởi Admin.",
-      "#aa0000",
-      "#fff",
-      10000
-    );
+    addAlertBox("Tài khoản của bạn đã bị khóa bởi Admin.", "#aa0000", "#fff", 10000);
     return;
   }
   var t = new Date();
   var daCoSanPham = false;
 
   for (var i = 0; i < user.products.length; i++) {
-    // check trùng sản phẩm
     if (user.products[i].ma == masp) {
       user.products[i].soluong++;
       daCoSanPham = true;
@@ -144,7 +161,6 @@ function themVaoGioHang(masp, tensp) {
   }
 
   if (!daCoSanPham) {
-    // nếu không trùng thì mới thêm sản phẩm vào user.products
     user.products.push({
       ma: masp,
       soluong: 1,
@@ -152,12 +168,17 @@ function themVaoGioHang(masp, tensp) {
     });
   }
 
+  // Gọi API để cập nhật giỏ hàng
+  await fetch(`/api/cart/${user.username}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ products: user.products })
+  });
+
   animateCartNumber();
   addAlertBox("Đã thêm " + tensp + " vào giỏ.", "#17c671", "#fff", 3500);
-
-  setCurrentUser(user); // cập nhật giỏ hàng cho user hiện tại
-  updateListUser(user); // cập nhật list user
-  capNhat_ThongTin_CurrentUser(); // cập nhật giỏ hàng
 }
 
 // ============================== TÀI KHOẢN ============================
@@ -603,7 +624,7 @@ function addHeader() {
                 <div class="cart">
                     <a href="giohang.html">
                         <i class="fa fa-shopping-cart"></i>
-                        <span>Gi�� hàng</span>
+                        <span>Giỏ hàng</span>
                         <span class="cart-number"></span>
                     </a>
                 </div> <!-- End Cart -->
@@ -641,7 +662,7 @@ function addContainTaiKhoan() {
         <div class="taikhoan">
 
             <ul class="tab-group">
-                <li class="tab active"><a href="#login">Đăng nhập</a></li>
+                <li class="tab active"><a href="#login">Đ��ng nhập</a></li>
                 <li class="tab"><a href="#signup">Đăng kí</a></li>
             </ul> <!-- /tab group -->
 
@@ -715,7 +736,7 @@ function addContainTaiKhoan() {
                             <input name="newPass" type="password" required autocomplete="off" />
                         </div> <!-- /pass -->
 
-                        <button type="submit" class="button button-block" />T��o tài khoản</button>
+                        <button type="submit" class="button button-block" />Tạo tài khoản</button>
 
                     </form> <!-- /form -->
 

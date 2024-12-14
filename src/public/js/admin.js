@@ -52,28 +52,28 @@ function createChartConfig(
           label: title,
           data: data,
           backgroundColor: colors,
-          borderColor: colors
+          borderColor: colors,
           // borderWidth: 2
-        }
-      ]
+        },
+      ],
     },
     options: {
       title: {
         fontColor: "#fff",
         fontSize: 25,
         display: true,
-        text: title
+        text: title,
       },
       scales: {
         yAxes: [
           {
             ticks: {
-              beginAtZero: true
-            }
-          }
-        ]
-      }
-    }
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+    },
   };
 }
 
@@ -94,7 +94,7 @@ function addThongKe() {
       if (!thongKeHang[tenHang]) {
         thongKeHang[tenHang] = {
           soLuongBanRa: 0,
-          doanhThu: 0
+          doanhThu: 0,
         };
       }
 
@@ -349,7 +349,7 @@ function layThongTinSanPhamTuTable(id) {
       rateCount: Number.parseInt(rateCount, 10),
       promo: {
         name: promoName,
-        value: promoValue
+        value: promoValue,
       },
       detail: {
         screen: screen,
@@ -360,41 +360,48 @@ function layThongTinSanPhamTuTable(id) {
         ram: ram,
         rom: rom,
         microUSB: microUSB,
-        battery: battery
+        battery: battery,
       },
-      masp: masp
+      masp: masp,
     };
   } catch (e) {
     alert("Lỗi: " + e.toString());
     return false;
   }
 }
-function themSanPham() {
-  var newSp = layThongTinSanPhamTuTable("khungThemSanPham");
-  if (!newSp) return;
+async function themSanPham() {
+  var sp = layThongTinSanPhamTuTable("khungThemSanPham");
+  if (!sp) return;
 
   for (var p of list_products) {
-    if (p.masp == newSp.masp) {
+    if (p.masp == sp.masp) {
       alert("Mã sản phẩm bị trùng !!");
       return false;
     }
 
-    if (p.name == newSp.name) {
+    if (p.name == sp.name) {
       alert("Tên sản phẩm bị trùng !!");
       return false;
     }
   }
-  // Them san pham vao list_products
-  list_products.push(newSp);
+  // Gọi API để thêm sản phẩm
+  const response = await fetch("/api/products", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(sp), // Gửi dữ liệu sản phẩm mới
+  });
 
-  // Lưu vào localstorage
-  setListProducts(list_products);
+  if (response.ok) {
+    alert("Thêm sản phẩm " + sp.name + " thành công");
+    await addTableProducts(); // Cập nhật lại danh sách sản phẩm
+  } else {
+    const errorData = await response.json();
+    alert("Lỗi: " + errorData.message);
+  }
 
-  // Vẽ lại table
-  addTableProducts();
-
-  alert('Thêm sản phẩm "' + newSp.name + '" thành công.');
-  document.getElementById("khungThemSanPham").style.transform = "scale(0)";
+  document.getElementById("khungThemSanPham").style.transform = "scale(0)"; // Đóng khung thêm sản phẩm
 }
 function autoMaSanPham(company) {
   // hàm tự tạo mã cho sản phẩm mới
@@ -446,11 +453,11 @@ async function suaSanPham(masp) {
 
   // Gọi API để cập nhật sản phẩm
   const response = await fetch(`/api/products/${masp}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(sp) // Gửi dữ liệu sản phẩm đã cập nhật
+    body: JSON.stringify(sp), // Gửi dữ liệu sản phẩm đã cập nhật
   });
 
   if (response.ok) {
@@ -771,7 +778,7 @@ function getListDonHang(traVeDanhSachSanPham = false) {
       for (var s of u[i].donhang[j].sp) {
         danhSachSanPham.push({
           sanPham: timKiemTheoMa(list_products, s.ma),
-          soLuong: s.soluong
+          soLuong: s.soluong,
         });
       }
 
@@ -782,7 +789,7 @@ function getListDonHang(traVeDanhSachSanPham = false) {
         sp: traVeDanhSachSanPham ? danhSachSanPham : sps,
         tongtien: numToString(tongtien),
         ngaygio: x,
-        tinhTrang: u[i].donhang[j].tinhTrang
+        tinhTrang: u[i].donhang[j].tinhTrang,
       });
     }
   }

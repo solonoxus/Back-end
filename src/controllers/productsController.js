@@ -5,7 +5,7 @@
 //PUT	    /api/products/:id	  Cập nhật sản phẩm
 //DELETE	/api/products/:id	  Xóa sản phẩm
 
-const Product = require("../models/productsModel");
+const Product = require("../models/productModel");
 
 //lấy tất cả sản phẩm
 exports.getAllProducts = async (_req, reply) => {

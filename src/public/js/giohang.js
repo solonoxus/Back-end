@@ -196,11 +196,21 @@ async function thanhToan() {
   }
 }
 
-function xoaHet() {
+async function xoaHet() {
   if (currentuser.products.length) {
     if (window.confirm("Bạn có chắc chắn muốn xóa hết sản phẩm trong giỏ !!")) {
-      currentuser.products = [];
-      capNhatMoiThu();
+      currentuser.products = []; // Xóa tất cả sản phẩm trong giỏ hàng
+
+      // Gọi API để cập nhật giỏ hàng
+      await fetch(`/api/cart/${currentuser.username}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ products: currentuser.products })
+      });
+
+      addProductToTable(currentuser); // Cập nhật lại bảng giỏ hàng
     }
   }
 }
