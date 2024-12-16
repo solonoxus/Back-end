@@ -20,13 +20,12 @@ html(lang="vi")
     link(rel="stylesheet" href="/public/css/tintuc.css")
 
     //js
-    script(src="/public/js/data/products.js")
     script(src="/public/js/dungchung.js")
     script.
       window.onload = function () {
         khoiTao();
         // thêm tags (từ khóa) vào khung tìm kiếm
-        var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
+        var tags = ["Samsung", "iPhone", "Vivo", "Oppo", "Xiaomi"];
         for (var t of tags) addTags(t, "index.html?search=" + t);
       }
 

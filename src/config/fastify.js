@@ -1,26 +1,84 @@
 const fastify = require("fastify");
 const fastifyFormBody = require("@fastify/formbody");
+const fastifyHelmet = require("@fastify/helmet");
+const fastifyRateLimit = require("@fastify/rate-limit");
+const fastifyCompress = require("@fastify/compress");
+const fastifyCors = require("@fastify/cors");
 const path = require("path");
+
+const { errorHandler } = require("./errorHandler");
+const { CORS_ORIGIN, NODE_ENV } = require("./environment");
 
 const createFastify = () => {
   const app = fastify({ 
-    logger: true,
-    ignoreTrailingSlash: true
+    logger: {
+      level: NODE_ENV === "development" ? "debug" : "info",
+      serializers: {
+        req(request) {
+          return {
+            method: request.method,
+            url: request.url,
+            hostname: request.hostname,
+            remoteAddress: request.ip,
+            remotePort: request.socket.remotePort
+          };
+        }
+      }
+    },
+    ignoreTrailingSlash: true,
+    trustProxy: true
   });
 
-  // Đăng ký các plugins
-  app.register(fastifyFormBody);
-  app.register(require("@fastify/cors")); // Thêm CORS
+  // Security middlewares
+  app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"]
+      }
+    }
+  });
 
-  // Đăng ký view engine
+  app.register(fastifyRateLimit, {
+    max: 100,
+    timeWindow: "1 minute",
+    errorResponseBuilder: function (request, context) {
+      return {
+        code: 429,
+        error: "Too Many Requests",
+        message: `Vui lòng thử lại sau ${context.after}`
+      };
+    }
+  });
+
+  // CORS
+  app.register(fastifyCors, {
+    origin: CORS_ORIGIN,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  });
+
+  // Performance middlewares
+  app.register(fastifyCompress, { 
+    encodings: ["gzip", "deflate"]
+  });
+
+  // Body parser
+  app.register(fastifyFormBody);
+
+  // View engine
   app.register(require("@fastify/view"), {
     engine: {
       pug: require("pug")
     },
     root: path.join(__dirname, "../views"),
     options: {
-      pretty: true,
-      debug: false
+      pretty: NODE_ENV === "development",
+      debug: NODE_ENV === "development",
+      cache: NODE_ENV === "production"
     }
   });
 
@@ -28,35 +86,13 @@ const createFastify = () => {
   app.register(require("@fastify/static"), {
     root: path.join(__dirname, "../public"),
     prefix: "/public/",
-    decorateReply: false
+    decorateReply: false,
+    cacheControl: true,
+    maxAge: NODE_ENV === "production" ? "1h" : "0"
   });
 
-  // Error handler
-  app.setErrorHandler((error, request, reply) => {
-    app.log.error(error);
-    
-    // Xử lý các loại lỗi cụ thể
-    if (error.validation) {
-      reply.status(400).send({
-        error: "Validation Error",
-        message: error.message
-      });
-      return;
-    }
-
-    reply.status(500).send({
-      error: "Internal Server Error",
-      message: "Đã xảy ra lỗi, vui lòng thử lại sau"
-    });
-  });
-
-  // Not found handler
-  app.setNotFoundHandler((request, reply) => {
-    reply.status(404).send({
-      error: "Not Found",
-      message: "Route không tồn tại"
-    }); 
-  });
+  // Global error handler
+  app.setErrorHandler(errorHandler);
 
   return app;
 };
