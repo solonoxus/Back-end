@@ -2,7 +2,7 @@ window.onload = function () {
 	khoiTao();
 
 	// Thêm hình vào banner
-	addBanner("../../public/img/banners/banner0.gif", "../../public/img/banners/banner0.gif");
+	addBanner("../../public/img/banners/banner0.gif");
 	var numBanner = 9; // Số lượng hình banner
 	for (var i = 1; i <= numBanner; i++) {
 		var linkimg = "../../public/img/banners/banner" + i + ".png";

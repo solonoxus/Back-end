@@ -254,6 +254,11 @@ function giamSoLuong(masp) {
 }
 
 async function capNhatMoiThu() {
+  if (!currentuser || !currentuser.username) {
+    console.error("Người dùng chưa đăng nhập");
+    return; // Thoát nếu người dùng chưa đăng nhập
+  }
+
   animateCartNumber();
 
   // Gọi API để cập nhật giỏ hàng

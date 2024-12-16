@@ -3,30 +3,62 @@ const fastifyFormBody = require("@fastify/formbody");
 const path = require("path");
 
 const createFastify = () => {
-  // Tạo instance Fastify
-  const app = fastify({ logger: true });
+  const app = fastify({ 
+    logger: true,
+    ignoreTrailingSlash: true
+  });
 
-  // Đăng ký plugin xử lý form-body
+  // Đăng ký các plugins
   app.register(fastifyFormBody);
+  app.register(require("@fastify/cors")); // Thêm CORS
 
   // Đăng ký view engine
   app.register(require("@fastify/view"), {
     engine: {
       pug: require("pug")
     },
-    root: path.join(__dirname, "../views")
+    root: path.join(__dirname, "../views"),
+    options: {
+      pretty: true,
+      debug: false
+    }
   });
 
-  // Đăng ký static files
+  // Static files
   app.register(require("@fastify/static"), {
-    root: path.join(__dirname, "../public/"),
-    prefix: "/public/"
+    root: path.join(__dirname, "../public"),
+    prefix: "/public/",
+    decorateReply: false
   });
-  app.setErrorHandler((error, req, reply) => {
-    console.error("Lỗi toàn cục:", error);
-    reply.status(500).send({ error: "Đã xảy ra lỗi hệ thống!" });
+
+  // Error handler
+  app.setErrorHandler((error, request, reply) => {
+    app.log.error(error);
+    
+    // Xử lý các loại lỗi cụ thể
+    if (error.validation) {
+      reply.status(400).send({
+        error: "Validation Error",
+        message: error.message
+      });
+      return;
+    }
+
+    reply.status(500).send({
+      error: "Internal Server Error",
+      message: "Đã xảy ra lỗi, vui lòng thử lại sau"
+    });
+  });
+
+  // Not found handler
+  app.setNotFoundHandler((request, reply) => {
+    reply.status(404).send({
+      error: "Not Found",
+      message: "Route không tồn tại"
+    }); 
   });
 
   return app;
 };
+
 module.exports = createFastify;

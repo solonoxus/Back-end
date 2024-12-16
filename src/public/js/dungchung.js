@@ -662,7 +662,7 @@ function addContainTaiKhoan() {
         <div class="taikhoan">
 
             <ul class="tab-group">
-                <li class="tab active"><a href="#login">Đ��ng nhập</a></li>
+                <li class="tab active"><a href="#login">Đăng nhập</a></li>
                 <li class="tab"><a href="#signup">Đăng kí</a></li>
             </ul> <!-- /tab group -->
 
@@ -755,7 +755,7 @@ function addPlc() {
                 <li>Giao hàng hỏa tốc trong 1 giờ</li>
                 <li>Thanh toán linh hoạt: tiền mặt, visa / master, trả góp</li>
                 <li>Trải nghiệm sản phẩm tại nhà</li>
-                <li>Lỗi đổi tại nhà trong 1 ngày</li>
+                <li>L��i đổi tại nhà trong 1 ngày</li>
                 <li>Hỗ trợ suốt thời gian sử dụng.
                     <br>Hotline:
                     <a href="tel:12345678" style="color: #288ad6;">12345678</a>
@@ -892,5 +892,18 @@ function auto_Get_Database() {
 			})();`;
       document.body.appendChild(s);
     })();
+  }
+}
+
+async function getListAdmin() {
+  // Gọi API để lấy danh sách sản phẩm cho admin
+  const response = await fetch('/api/products/admin');
+  const data = await response.json();
+
+  if (data.success) {
+    return data.products; // Trả về danh sách sản phẩm
+  } else {
+    alert("Lỗi khi lấy danh sách sản phẩm cho admin: " + data.message);
+    return []; // Trả về mảng rỗng nếu có lỗi
   }
 }

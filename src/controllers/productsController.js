@@ -11,7 +11,7 @@ const Product = require("../models/productModel");
 exports.getAllProducts = async (_req, reply) => {
   try {
     const products = await Product.find();
-    reply.view("products", { title: "Danh sách sản phẩm", products });
+    reply.send("products", { title: "Danh sách sản phẩm", products });
   } catch (err) {
     reply.status(500).send({ message: "Lỗi khi lấy sản phẩm!", error: err });
   }

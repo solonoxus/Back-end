@@ -8,14 +8,13 @@ const app = createFastify();
 connectDatabase();
 
 // Đăng ký routes
-app.register(require("./router/homeRouters"), { prefix: "/" });
-app.register(require("./router/userRouters"), { prefix: "/user" });
-app.register(require("./router/cartRouters"), { prefix: "/cart" });
-app.register(require("./router/contactRouters"), { prefix: "/contact" });
-app.register(require("./router/adminRouters"), { prefix: "/admin" });
-app.register(require("./router/productsRouters"), { prefix: "/products" });
-app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
+app.register(require("./router/homeRouters"));
+app.register(require("./router/userRouters"), { prefix: "/api/users" });
 app.register(require("./router/cartRouters"), { prefix: "/api/cart" });
+app.register(require("./router/contactRouters"), { prefix: "/api/contact" });
+app.register(require("./router/adminRouters"), { prefix: "/api/admin" });
+app.register(require("./router/productsRouters"), { prefix: "/api/products" });
+app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
 
 const start = async () => {
   try {

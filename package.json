@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/wanduss27/Back-end#readme",
   "dependencies": {
+    "@fastify/cors": "^10.0.1",
     "@fastify/formbody": "^8.0.1",
     "@fastify/static": "^8.0.3",
     "@fastify/view": "^10.0.1",
