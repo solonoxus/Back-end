@@ -5,29 +5,29 @@ html(lang="vi")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     meta(http-equiv="X-UA-Compatible", content="ie=edge")
     title Trung tâm bảo hành - Thế giới điện thoại
-    link(rel="shortcut icon", href="../../public/img/favicon.ico")
+    link(rel="shortcut icon", href="/public/img/favicon.ico")
 
     //- Load font awesome icons
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", crossorigin="anonymous")
 
     //- our files
     // css
-    link(rel="stylesheet", href="../../public/css/style.css")
-    link(rel="stylesheet", href="../../public/css/topnav.css")
-    link(rel="stylesheet", href="../../public/css/header.css")
-    link(rel="stylesheet", href="../../public/css/taikhoan.css")
-    link(rel="stylesheet", href="../../public/css/footer.css")
-    link(rel="stylesheet", href="../../public/css/baohanh.css")
+    link(rel="stylesheet", href="/public/css/style.css")
+    link(rel="stylesheet", href="/public/css/topnav.css")
+    link(rel="stylesheet", href="/public/css/header.css")
+    link(rel="stylesheet", href="/public/css/taikhoan.css")
+    link(rel="stylesheet", href="/public/css/footer.css")
+    link(rel="stylesheet", href="/public/css/baohanh.css")
     
     //js
-    script(src="../../public/js/data/products.js")
-    script(src="../../public/js/dungchung.js")
+    script(src="/public/js/data/products.js")
+    script(src="/public/js/dungchung.js")
 
     script.
       window.onload = function () {
         khoiTao();
         // thêm tags (từ khóa) vào khung tìm kiếm
-        var tags = ["Samsung", "iPhone", "Huawei", "Oppo", "Mobi"];
+        var tags = ["Samsung", "iPhone", "Vivo", "Oppo", "Xiaomi"];
         for (var t of tags) addTags(t, "index.html?search=" + t);
       }
 

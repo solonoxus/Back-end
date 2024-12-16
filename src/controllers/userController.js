@@ -1,10 +1,3 @@
-//Phương thức	API Endpoint	            Hành động
-//GET	        /api/users	                Lấy danh sách người dùng
-//POST	        /api/users/register	        Đăng ký người dùng mới
-//POST	        /api/users/login	        Đăng nhập người dùng
-//DELETE	    /api/users/:username	    Xóa người dùng
-//PUT	        /api/users/:username	    Cập nhật trạng thái người dùng
-
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const userService = require('../services/userService');
@@ -13,7 +6,7 @@ const userService = require('../services/userService');
 exports.getUser = async (request, reply) => {
   try {
     const users = await User.find(); // Sử dụng model User
-    reply.view("user", { title: "Danh sách người dùng", users });
+    reply.view("/nguoidung", { title: "Danh sách người dùng", users });
   } catch (error) {
     reply
       .status(500)
@@ -50,6 +43,18 @@ exports.loginUser = async (req, reply) => {
     reply.send({ message: "Đăng nhập thành công!", user });
   } catch (err) {
     reply.status(500).send({ message: "Lỗi khi đăng nhập!", error: err });
+  }
+};
+exports.logoutUser = async (request, reply) => {
+  try {
+    // Xóa session/token nếu có
+    request.session = null;
+    
+    reply.send({ success: true, message: "Đăng xuất thành công" });
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ success: false, message: "Lỗi khi đăng xuất", error });
   }
 };
 

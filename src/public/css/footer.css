@@ -3,10 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
+  padding: 10px;
   background-color: #ffeb3b;
   color: #000000;
   font-size: 14px;
+  
 }
 
 #alert .alert-text {
@@ -23,7 +24,8 @@
 .footer {
   background-color: #c7b8b8;
   color: #333;
-  padding: 40px 20px;
+  padding: 5px 50px;
+  margin-top: 100px;
 }
 
 .footer-top {
@@ -39,6 +41,7 @@
 .footer-col {
   flex: 1;
   min-width: 200px;
+  padding-right: 10px;
 }
 
 .footer-col h4 {
@@ -89,6 +92,7 @@
   gap: 10px;
 }
 
+
 .footer-col form input {
   flex: 1;
   padding: 20px;
@@ -105,13 +109,47 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
+  background-color: #ff424e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+} */
 
 .footer-col form button:hover {
-  background-color: #e33d3d;
+  background-color: #ff1f1f;
+}
+
+.social-links li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.social-links li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-links li a:hover {
+  background-color: #ff424e;
+  color: #fff;
+  transform: translateY(-3px);
 }
 
 .footer-bottom {
   text-align: center;
-  font-size: 17px;
-  color: #000000;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  margin-top: 20px;
 }

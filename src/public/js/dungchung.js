@@ -27,9 +27,28 @@ async function khoiTao() {
   list_products = await getListProducts() || list_products;
   adminInfo =  await getListAdmin() || adminInfo;
 
+  handleNewsletterForm();
   setupEventTaiKhoan();
   capNhat_ThongTin_CurrentUser();
   addEventCloseAlertButton();
+}
+
+// Xử lý form đăng ký nhận tin trong footer
+function handleNewsletterForm() {
+  const form = document.querySelector('.footer-col form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input[type="email"]').value;
+      if (email) {
+        // Có thể thêm API call để lưu email vào database
+        addAlertBox('Cảm ơn bạn đã đăng ký nhận tin!', '#4CAF50', '#fff');
+        this.reset();
+      } else {
+        addAlertBox('Vui lòng nhập email của bạn!', '#f44336', '#fff');
+      }
+    });
+  }
 }
 
 // ========= Các hàm liên quan tới danh sách sản phẩm =========
@@ -179,6 +198,9 @@ async function themVaoGioHang(masp, tensp) {
 
   animateCartNumber();
   addAlertBox("Đã thêm " + tensp + " vào giỏ.", "#17c671", "#fff", 3500);
+  setCurrentUser(user); // cập nhật giỏ hàng cho user hiện tại
+  updateListUser(user); // cập nhật list user
+  capNhat_ThongTin_CurrentUser(); // cập nhật giỏ hàng
 }
 
 // ============================== TÀI KHOẢN ============================
@@ -232,17 +254,35 @@ function updateListUser(u, newData) {
 async function logIn(form) {
   var name = form.username.value;
   var pass = form.pass.value;
+  var newUser = new User(name, pass);
+
+  
+  // Lấy dữ liệu từ danh sách người dùng localstorage
+  var listUser = getListUser();
 
   // Kiểm tra đăng nhập admin
   const isAdmin = await checkAdmin(name, pass);
   if (isAdmin) {
     alert("Xin chào admin!");
-    window.location.assign("../../views/Admin/admin.html");
+    window.location.assign("/views/admin.html");
     return false;
   }
 
-  // Tiếp tục xử lý đăng nhập user thông thường
-  // ... code xử lý user login ...
+ // Kiểm tra xem dữ liệu form có khớp với người dùng nào trong danh sách ko
+ for (var u of listUser) {
+  if (equalUser(newUser, u)) {
+    if (u.off) {
+      alert("Tài khoản này đang bị khoá. Không thể đăng nhập.");
+      return false;
+    }
+
+    setCurrentUser(u);
+
+    // Reload lại trang -> sau khi reload sẽ cập nhật luôn giỏ hàng khi hàm setupEventTaiKhoan chạy
+    location.reload();
+    return false;
+  }
+}
 }
 
 function signUp(form) {
@@ -284,10 +324,31 @@ function signUp(form) {
   return false;
 }
 
-function logOut() {
-  window.localStorage.removeItem("CurrentUser");
-  location.reload();
+async function logOut() {
+  try {
+    // Gọi API đăng xuất
+    const response = await fetch("/api/users/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({})
+    });
+
+    if (response.ok) {
+      // Xóa dữ liệu local
+      window.localStorage.removeItem("CurrentUser");
+      window.localStorage.removeItem("admin");
+      location.reload();
+    } else {
+      addAlertBox("Lỗi đăng xuất!", "#f44336", "#fff");
+    }
+  } catch (error) {
+    console.error("Lỗi đăng xuất:", error);
+    addAlertBox("Lỗi đăng xuất!", "#f44336", "#fff");
+  }
 }
+
 
 // Hiển thị form tài khoản, giá trị truyền vào là true hoặc false
 function showTaiKhoan(show) {
@@ -386,13 +447,13 @@ function capNhat_ThongTin_CurrentUser() {
 
 // tính tổng số lượng các sản phẩm của user u truyền vào
 function getTongSoLuongSanPhamTrongGioHang(u) {
+  if (!u || !u.products) return 0;
   var soluong = 0;
   for (var p of u.products) {
-    soluong += p.soluong;
+    soluong += p.soluong || 0;
   }
   return soluong;
 }
-
 // lấy số lương của sản phẩm NÀO ĐÓ của user NÀO ĐÓ được truyền vào
 function getSoLuongSanPhamTrongUser(tenSanPham, user) {
   for (var p of user.products) {
@@ -572,11 +633,11 @@ function addTopNav() {
             </div> <!-- End Social Topnav -->
 
             <ul class="top-nav-quicklink flexContain">
-                <li><a href="../../views/index.html"><i class="fa fa-home"></i> Trang chủ</a></li>
-                <li><a href="../../views/General/tintuc.html"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
-                <li><a href="../../views/includes/gioithieu.html"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
-                <li><a href="../../views/General/trungtambaohanh.html"><i class="fa fa-wrench"></i> Bảo hành</a></li>
-                <li><a href="../../views/General/lienhe.html"><i class="fa fa-phone"></i> Liên hệ</a></li>
+                <li><a href="/views/index"><i class="fa fa-home"></i> Trang chủ</a></li>
+                <li><a href="/views/tintuc"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
+                <li><a href="/views/gioithieu"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
+                <li><a href="/views/trungtambaohanh"><i class="fa fa-wrench"></i> Bảo hành</a></li>
+                <li><a href="/views/lienhe"><i class="fa fa-phone"></i> Liên hệ</a></li>
             </ul> <!-- End Quick link -->
         </section><!-- End Section -->
     </div><!-- End Top Nav  -->`);
@@ -587,8 +648,8 @@ function addHeader() {
   document.write(`        
 	<div class="header group">
         <div class="logo">
-            <a href="../../views/index.html">
-                <img src="../img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
+            <a href="/views/index">
+                <img src="/public/img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
             </a>
         </div> <!-- End Logo -->
 
@@ -615,14 +676,14 @@ function addHeader() {
                         Tài khoản
                     </a>
                     <div class="menuMember hide">
-                        <a href="../../views/User/nguoidung.html">Trang người dùng</a>
+                        <a href="/views/nguoidung">Trang người dùng</a>
                         <a onclick="if(window.confirm('Xác nhận đăng xuất ?')) logOut();">Đăng xuất</a>
                     </div>
 
                 </div> <!-- End Member -->
 
                 <div class="cart">
-                    <a href="giohang.html">
+                    <a href="giohang">
                         <i class="fa fa-shopping-cart"></i>
                         <span>Giỏ hàng</span>
                         <span class="cart-number"></span>
@@ -642,17 +703,57 @@ function addHeader() {
 
 function addFooter() {
   document.write(`
-    <!-- ============== Alert Box ============= -->
+    <!-- Alert Box -->
     <div id="alert">
-        <span id="closebtn">&otimes;</span>
+        <span id="closebtn">&times;</span>
+        <p class="alert-text">Hãy đăng ký ngay để nhận ưu đãi hấp dẫn!</p>
     </div>
 
-    <!-- ============== Footer ============= -->
-    <div class="copy-right">
-        <p><a href="../../views/index.html">LDD Phone Store</a> - All rights reserved © 2021 - Designed by
-            <span style="color: #eee; font-weight: bold">group 15th</span></p>
-    </div>`);
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-col">
+                <h4>Hỗ trợ khách hàng</h4>
+                <ul>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Phương thức thanh toán</a></li>
+                    <li><a href="#">Chính sách bảo hành</a></li>
+                    <li><a href="#">Tra cứu đơn hàng</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Về chúng tôi</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Hệ thống cửa hàng</a></li>
+                    <li><a href="#">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Kết nối với chúng tôi</h4>
+                <ul class="social-links">
+                    <li><a class="fa fa-facebook"></a></li>
+                    <li><a class="fa fa-twitter"></a></li>
+                    <li><a class="fa fa-youtube"></a></a></li>
+                    <li><a class="fa fa-instagram"></a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Đăng ký nhận tin</h4>
+                <form>
+                    <input type="email" placeholder="Nhập email của bạn">
+                    <button type="submit">Đăng ký</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 Mobile Store - Tất cả các quyền được bảo lưu</p>
+        </div>
+    </footer>
+  `);
 }
+
 
 // Thêm contain Taikhoan
 function addContainTaiKhoan() {
@@ -746,24 +847,7 @@ function addContainTaiKhoan() {
         </div> <!-- /taikhoan -->
     </div>`);
 }
-// Thêm plc (phần giới thiệu trước footer)
-function addPlc() {
-  document.write(`
-    <div class="plc">
-        <section>
-            <ul class="flexContain">
-                <li>Giao hàng hỏa tốc trong 1 giờ</li>
-                <li>Thanh toán linh hoạt: tiền mặt, visa / master, trả góp</li>
-                <li>Trải nghiệm sản phẩm tại nhà</li>
-                <li>L��i đổi tại nhà trong 1 ngày</li>
-                <li>Hỗ trợ suốt thời gian sử dụng.
-                    <br>Hotline:
-                    <a href="tel:12345678" style="color: #288ad6;">12345678</a>
-                </li>
-            </ul>
-        </section>
-    </div>`);
-}
+
 
 // https://stackoverflow.com/a/2450976/11898496
 function shuffleArray(array) {

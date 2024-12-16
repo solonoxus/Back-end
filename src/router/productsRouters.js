@@ -2,18 +2,13 @@ const productsController = require("../controllers/productsController");
 
 async function routes(fastify, options) {
   // Routes cho products
-  fastify.get("/api/products", productsController.getAllProducts);
-  fastify.get("/api/products/:id", productsController.getProductById);
-  fastify.post("/api/products", productsController.createProduct);
-  fastify.put("/api/products/:masp", productsController.updateProduct);
-  fastify.delete("/api/products/:masp", productsController.deleteProduct);
-  fastify.get("/api/products/statistics", productsController.getStatistics);
-
-  // Nếu bạn muốn có route cho trang chủ, hãy sử dụng đường dẫn khác
-  fastify.get("/", async (req, reply) => {
-    // Có thể trả về một view hoặc một thông điệp nào đó
-    reply.send({ message: "Welcome to the homepage!" });
-  });
+  fastify.get("/", productsController.getAllProducts);         // Route gốc
+  fastify.get("/statistics", productsController.getStatistics); // Route tĩnh
+  fastify.get("/admin", productsController.getProductsAdmin);   // Route tĩnh
+  fastify.get("/:id", productsController.getProductById);      // Route động
+  fastify.post("/", productsController.createProduct);
+  fastify.put("/:masp", productsController.updateProduct);
+  fastify.delete("/:masp", productsController.deleteProduct);
 }
 
 module.exports = routes;

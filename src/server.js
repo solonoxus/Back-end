@@ -5,8 +5,6 @@ const { connect } = require("mongoose");
 
 const app = createFastify();
 
-connectDatabase();
-
 // Đăng ký routes
 app.register(require("./router/homeRouters"));
 app.register(require("./router/userRouters"), { prefix: "/api/users" });
@@ -19,7 +17,6 @@ app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
 const start = async () => {
   try {
     await connectDatabase();
-
     await app.listen({ port: PORT, host: HOST });
     console.log(`Server listening on ${app.server.address().port}`);
   } catch (err) {

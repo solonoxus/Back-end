@@ -889,7 +889,7 @@ function sortDonHangTable(loai) {
   decrease = !decrease;
 }
 
-// Lấy giá trị của loại(c���t) dữ liệu nào đó trong bảng
+// Lấy giá trị của loại(cột) dữ liệu nào đó trong bảng
 function getValueOfTypeInTable_DonHang(tr, loai) {
   var td = tr.getElementsByTagName("td");
   switch (loai) {
