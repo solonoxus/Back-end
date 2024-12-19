@@ -1,22 +1,60 @@
 const mongoose = require("mongoose");
-const { MONGO_URI } = require("./environment");
+const { MONGODB_URI } = require("./environment");
 
-// Kết nối tới MongoDB
+let retryCount = 0;
+const MAX_RETRIES = 5;
+
 const connectDatabase = async () => {
   try {
-    console.log("Connecting to MongoDB...");
-    console.log("MONGO_URI: ", MONGO_URI); // Sử dụng từ environment.js
+    if (mongoose.connection.readyState === 1) {
+      console.log("MongoDB đã được kết nối ✅");
+      return;
+    }
 
-    await mongoose.connect(MONGO_URI);
+    console.log("Đang kết nối đến MongoDB...");
+    
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10
+    });
 
-    //   useNewUrlParser: true,
-    //   useUnifiedTopology: true,
-    //  vì useNewUrlParser và useUnifiedTopology đã bị deprecated (ngừng hỗ trợ) từ MongoDB Node.js Driver 4.0.không cần truyền chúng làm tùy chọn khi gọi mongoose.connect() nữa.
-    console.log("MongoDB Connected ✅");
+    console.log("MongoDB đã kết nối thành công ✅");
+    retryCount = 0;
   } catch (err) {
-    console.error("MongoDB Connection Failed ❌", err);
-    process.exit(1);
+    console.error("❌ Lỗi kết nối MongoDB:", err.message);
+    
+    if (retryCount < MAX_RETRIES) {
+      retryCount++;
+      console.log(`Đang thử kết nối lại... Lần ${retryCount}/${MAX_RETRIES}`);
+      setTimeout(connectDatabase, 5000);
+    } else {
+      console.error("Đã vượt quá số lần thử kết nối. Thoát ứng dụng.");
+      process.exit(1);
+    }
   }
 };
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+  if (mongoose.connection.readyState !== 1) {
+    connectDatabase();
+  }
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bị ngắt kết nối. Đang thử kết nối lại...');
+  connectDatabase();
+});
+
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('Đã đóng kết nối MongoDB');
+    process.exit(0);
+  } catch (err) {
+    console.error('Lỗi khi đóng kết nối MongoDB:', err);
+    process.exit(1);
+  }
+});
 
 module.exports = connectDatabase;

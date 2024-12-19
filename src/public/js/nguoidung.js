@@ -1,37 +1,41 @@
 var currentUser;
-var tongTienTatCaDonHang = 0; // lưu tổng tiền từ tất cả các đơn hàng đã mua
+var tongTienTatCaDonHang = 0;
 var tongSanPhamTatCaDonHang = 0;
 
-window.onload = function () {
-    khoiTao();
+window.onload = async function () {
+    await khoiTao();
 
     // autocomplete cho khung tim kiem
-    autocomplete(document.getElementById('search-box'), list_products);
+    const response = await callApi(ENDPOINTS.PRODUCTS);
+    const products = response.data;
+    autocomplete(document.getElementById('search-box'), products);
 
     // thêm tags (từ khóa) vào khung tìm kiếm
-    var tags = ["Samsung", "IPhone", "Vivo", "Oppo", "Xiaomi"];
-    for (var t of tags) addTags(t, "/views/index.html?search=" + t);
+    const tags = ["Samsung", "IPhone", "Vivo", "Oppo", "Xiaomi"];
+    for (const t of tags) {
+        addTags(t, "index.html?search=" + t);
+    }
 
-    currentUser = getCurrentUser();
-
-    if (currentUser) {
-        // cập nhật từ list user, do trong admin chỉ tác động tới listuser
-        var listUser = getListUser();
-        for (var u of listUser) {
-            if (equalUser(currentUser, u)) {
-                currentUser = u;
-                setCurrentUser(u);
-            }
+    const token = localStorage.getItem('token');
+    if (token) {
+        try {
+            const userResponse = await callApi(ENDPOINTS.CURRENT_USER);
+            currentUser = userResponse.data;
+            await addTatCaDonHang(currentUser);
+            addInfoUser(currentUser);
+        } catch (error) {
+            console.error('Lỗi lấy thông tin user:', error);
+            localStorage.removeItem('token');
+            document.getElementsByClassName('infoUser')[0].innerHTML = `
+                <h2 style="color: red; font-weight:bold; text-align:center; font-size: 2em; padding: 50px;">
+                    Bạn chưa đăng nhập !!
+                </h2>`;
         }
-
-        addTatCaDonHang(currentUser); // hàm này cần chạy trước để tính được tổng tiền tất cả đơn hàng 
-        addInfoUser(currentUser);
-    
     } else {
-        var warning = `<h2 style="color: red; font-weight:bold; text-align:center; font-size: 2em; padding: 50px;">
-                            Bạn chưa đăng nhập !!
-                        </h2>`;
-        document.getElementsByClassName('infoUser')[0].innerHTML = warning;
+        document.getElementsByClassName('infoUser')[0].innerHTML = `
+            <h2 style="color: red; font-weight:bold; text-align:center; font-size: 2em; padding: 50px;">
+                Bạn chưa đăng nhập !!
+            </h2>`;
     }
 }
 
@@ -118,183 +122,166 @@ function openChangePass() {
     else khungChangePass.classList.add('active');
 }
 
-function changePass() {
-    var khungChangePass = document.getElementById('khungDoiMatKhau');
-    var inps = khungChangePass.getElementsByTagName('input');
-    if (inps[0].value != currentUser.pass) {
-        alert('Sai mật khẩu !!');
+async function changePass() {
+    const khungChangePass = document.getElementById('khungDoiMatKhau');
+    const inps = khungChangePass.getElementsByTagName('input');
+    const oldPass = inps[0].value;
+    const newPass = inps[1].value;
+    const confirmPass = inps[2].value;
+
+    if (!oldPass) {
+        alert('Chưa nhập mật khẩu cũ !');
         inps[0].focus();
         return;
     }
-    if (inps[1] == '') {
-        inps[1].focus();
+    if (!newPass) {
         alert('Chưa nhập mật khẩu mới !');
+        inps[1].focus();
+        return;
     }
-    if (inps[1].value != inps[2].value) {
-        alert('Mật khẩu không khớp');
+    if (newPass != confirmPass) {
+        alert('Mật khẩu không khớp !');
         inps[2].focus();
         return;
     }
 
-    var temp = copyObject(currentUser);
-    currentUser.pass = inps[1].value;
+    try {
+        await callApi('/api/users/change-password', 'PUT', {
+            oldPassword: oldPass,
+            newPassword: newPass
+        });
 
-    // cập nhật danh sách sản phẩm trong localstorage
-    setCurrentUser(currentUser);
-    updateListUser(temp, currentUser);
-
-    // Cập nhật trên header
-    capNhat_ThongTin_CurrentUser();
-
-    // thông báo
-    addAlertBox('Thay đổi mật khẩu thành công.', '#5f5', '#000', 4000);
-    openChangePass();
+        addAlertBox('Thay đổi mật khẩu thành công.', '#5f5', '#000', 4000);
+        openChangePass();
+        
+        // Reset form
+        inps[0].value = '';
+        inps[1].value = '';
+        inps[2].value = '';
+    } catch (error) {
+        console.error('Lỗi đổi mật khẩu:', error);
+        addAlertBox('Mật khẩu cũ không đúng.', '#f55', '#000', 3000);
+        inps[0].focus();
+    }
 }
 
-function changeInfo(iTag, info) {
-    var inp = iTag.parentElement.previousElementSibling.getElementsByTagName('input')[0];
+async function changeInfo(iTag, info) {
+    const inp = iTag.parentElement.previousElementSibling.getElementsByTagName('input')[0];
 
     // Đang hiện
     if (!inp.readOnly && inp.value != '') {
+        const newValue = inp.value.trim();
 
-        if (info == 'username') {
-            var users = getListUser();
-            for (var u of users) {
-                if (u.username == inp.value && u.username != currentUser.username) {
-                    alert('Tên đã có người sử dụng !!');
-                    inp.value = currentUser.username;
-                    return;
-                }
-            }
-            // Đổi tên trong list đơn hàng
-            if (!currentUser.donhang.length) {
+        try {
+            await callApi('/api/users/profile', 'PUT', {
+                [info]: newValue
+            });
+
+            // Cập nhật currentUser
+            currentUser[info] = newValue;
+
+            // Cập nhật giao diện
+            if (info == 'username' && !currentUser.donhang?.length) {
                 document.getElementsByClassName('listDonHang')[0].innerHTML = `
                     <h3 style="width=100%; padding: 50px; color: green; font-size: 2em; text-align: center"> 
-                        Xin chào ` + inp.value + `. Bạn chưa có đơn hàng nào.
+                        Xin chào ${newValue}. Bạn chưa có đơn hàng nào.
                     </h3>`;
             }
 
+            // Cập nhật header
+            capNhat_ThongTin_CurrentUser();
 
-        } else if (info == 'email') {
-            var users = getListUser();
-            for (var u of users) {
-                if (u.email == inp.value && u.username != currentUser.username) {
-                    alert('Email đã có người sử dụng !!');
-                    inp.value = currentUser.email;
-                    return;
-                }
+            iTag.innerHTML = '';
+            inp.readOnly = true;
+
+        } catch (error) {
+            console.error('Lỗi cập nhật thông tin:', error);
+            if (error.response?.status === 409) {
+                alert(`${info === 'username' ? 'Tên đăng nhập' : 'Email'} đã có người sử dụng!`);
+                inp.value = currentUser[info];
+            } else {
+                addAlertBox('Có lỗi xảy ra khi cập nhật thông tin.', '#f55', '#000', 3000);
             }
         }
-
-        var temp = copyObject(currentUser);
-        currentUser[info] = inp.value;
-
-        // cập nhật danh sách sản phẩm trong localstorage
-        setCurrentUser(currentUser);
-        updateListUser(temp, currentUser);
-
-        // Cập nhật trên header
-        capNhat_ThongTin_CurrentUser();
-
-        iTag.innerHTML = '';
-
     } else {
+        inp.readOnly = false;
         iTag.innerHTML = 'Đồng ý';
         inp.focus();
-        var v = inp.value;
-        inp.value = '';
-        inp.value = v;
     }
-
-    inp.readOnly = !inp.readOnly;
 }
 
 
 // Phần thông tin đơn hàng
 async function addTatCaDonHang(user) {
-    if (!user) {
-        document.getElementsByClassName('listDonHang')[0].innerHTML = `
-            <h3 style="width=100%; padding: 50px; color: red; font-size: 2em; text-align: center"> 
-                Bạn chưa đăng nhập !!
-            </h3>`;
-        return;
-    }
+    if (!user) return;
 
-    // Gọi API để lấy danh sách đơn hàng
-    const response = await fetch(`/api/orders/user/${user._id}`);
-    const data = await response.json();
+    try {
+        const response = await callApi('/api/orders');
+        const orders = response.data;
 
-    if (!data.success || !data.orders.length) {
-        document.getElementsByClassName('listDonHang')[0].innerHTML = `
-            <h3 style="width=100%; padding: 50px; color: green; font-size: 2em; text-align: center"> 
-                Xin chào ` + user.username + `. Bạn chưa có đơn hàng nào.
-            </h3>`;
-        return;
-    }
+        if (!orders.length) {
+            document.getElementsByClassName('listDonHang')[0].innerHTML = `
+                <h3 style="width=100%; padding: 50px; color: green; font-size: 2em; text-align: center"> 
+                    Xin chào ${user.username}. Bạn chưa có đơn hàng nào.
+                </h3>`;
+            return;
+        }
 
-    for (var dh of data.orders) {
-        addDonHang(dh);
+        // Thêm từng đơn hàng vào danh sách
+        for (const order of orders) {
+            await addDonHang(order);
+            // Tính tổng tiền và số lượng
+            tongTienTatCaDonHang += order.total;
+            tongSanPhamTatCaDonHang += order.items.reduce((sum, item) => sum + item.quantity, 0);
+        }
+    } catch (error) {
+        console.error('Lỗi lấy danh sách đơn hàng:', error);
+        addAlertBox('Có lỗi xảy ra khi tải đơn hàng.', '#f55', '#000', 3000);
     }
 }
 
 function addDonHang(dh) {
-    var div = document.getElementsByClassName('listDonHang')[0];
+    const div = document.getElementsByClassName('listDonHang')[0];
 
-    var s = `
-            <table class="listSanPham">
-                <tr> 
-                    <th colspan="6">
-                        <h3 style="text-align:center;"> Đơn hàng ngày: ` + new Date(dh.ngaymua).toLocaleString() + `</h3> 
-                    </th>
-                </tr>
-                <tr>
-                    <th>STT</th>
-                    <th>Sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                    <th>Thời gian thêm vào giỏ</th> 
-                </tr>`;
+    const newDiv = document.createElement('div');
+    newDiv.classList.add('donhang');
+    
+    const productList = dh.items.map(item => `
+        <div class="sanpham">
+            <img src="${item.product.img}" alt="">
+            <div class="thongtin">
+                <a href="chitietsanpham.html?code=${item.product._id}" title="Xem chi tiết">${item.product.name}</a>
+                <div class="dongia">Đơn giá: ${numToString(item.product.price)}₫</div>
+                <div class="soluong">Số lượng: ${item.quantity}</div>
+                <div class="thanhtien">Thành tiền: ${numToString(item.product.price * item.quantity)}₫</div>
+            </div>
+        </div>
+    `).join('');
 
-    var totalPrice = 0;
-    for (var i = 0; i < dh.sp.length; i++) {
-        var masp = dh.sp[i].ma;
-        var soluongSp = dh.sp[i].soluong;
-        var p = timKiemTheoMa(list_products, masp);
-        var price = (p.promo.name == 'giareonline' ? p.promo.value : p.price);
-        var thoigian = new Date(dh.sp[i].date).toLocaleString();
-        var thanhtien = stringToNum(price) * soluongSp;
-
-        s += `
-                <tr>
-                    <td>` + (i + 1) + `</td>
-                    <td class="noPadding imgHide">
-                        <a target="_blank" href="/views/chitietsanpham.html?` + p.name.split(' ').join('-') + `" title="Xem chi tiết">
-                            ` + p.name + `
-                            <img src="` + p.img + `">
-                        </a>
-                    </td>
-                    <td class="alignRight">` + price + ` ₫</td>
-                    <td class="soluong" >
-                         ` + soluongSp + `
-                    </td>
-                    <td class="alignRight">` + numToString(thanhtien) + ` ₫</td>
-                    <td style="text-align: center" >` + thoigian + `</td>
-                </tr>
-            `;
-        totalPrice += thanhtien;
-        tongSanPhamTatCaDonHang += soluongSp;
+    newDiv.innerHTML = `
+        <div class="header">
+            <div class="date">Ngày: ${new Date(dh.createdAt).toLocaleDateString('vi-VN')}</div>
+            <div class="trangThai">
+                ${getTrangThaiDonHang(dh.status)}
+            </div>
+        </div>
+        <div class="chitietdonhang">
+            ${productList}
+        </div>
+        <div class="footer">
+            <div class="tongtien">Tổng tiền: ${numToString(dh.total)}₫</div>
+        </div>
+    `;
+    
+    div.appendChild(newDiv);
+}
+function getTrangThaiDonHang(status) {
+    switch (status) {
+        case 'pending': return 'Đang chờ xử lý';
+        case 'processing': return 'Đang xử lý';
+        case 'shipping': return 'Đang giao hàng';
+        case 'completed': return 'Đã giao hàng';
+        case 'cancelled': return 'Đã hủy';
+        default: return 'Không xác định';
     }
-    tongTienTatCaDonHang += totalPrice;
-
-    s += `
-                <tr style="font-weight:bold; text-align:center; height: 4em;">
-                    <td colspan="4">TỔNG TIỀN: </td>
-                    <td class="alignRight">` + numToString(totalPrice) + ` ₫</td>
-                    <td > ` + dh.tinhTrang + ` </td>
-                </tr>
-            </table>
-            <hr>
-        `;
-    div.innerHTML += s;
 }

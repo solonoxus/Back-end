@@ -1,60 +1,53 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   password: {
     type: String,
     required: true
   },
+  name: String,
   email: {
     type: String,
     required: true,
     unique: true
   },
-  name: String,
   phone: String,
   address: String,
   isAdmin: {
     type: Boolean,
     default: false
   },
-  off: {
-    type: Boolean,
-    default: false
-  },
   cart: [{
-    productId: {
+    product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product'
     },
-    quantity: Number
-  }],
-  orders: [{
-    products: [{
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product'
-      },
-      quantity: Number,
-      price: Number
-    }],
-    totalAmount: Number,
-    orderDate: {
-      type: Date,
-      default: Date.now
-    },
-    status: {
-      type: String,
-      enum: ['Đang chờ xử lý', 'Đã xác nhận', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'],
-      default: 'Đang chờ xử lý'
+    quantity: {
+      type: Number,
+      default: 1
     }
   }]
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('User', userSchema); 
+// Hash password trước khi lưu
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Method kiểm tra password
+userSchema.methods.checkPassword = async function(password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+module.exports = mongoose.model('User', userSchema);

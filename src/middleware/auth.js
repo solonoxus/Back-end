@@ -1,17 +1,34 @@
-// Add to src/middleware/auth.js
-const authMiddleware = async (req, res, next) => {
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config/environment');
+const User = require('../models/userModel');
+
+const auth = async (req, reply) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    // Lấy token từ header
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
     if (!token) {
-      return res.status(401).json({ message: "Không có token xác thực" });
+      throw new Error();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Tìm user với id từ token
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+      throw new Error();
+    }
+
+    // Gán user vào request để sử dụng ở các route khác
+    req.user = user;
   } catch (error) {
-    res.status(401).json({ message: "Token không hợp lệ" });
+    reply.code(401).send({
+      success: false,
+      message: 'Vui lòng đăng nhập'
+    });
   }
 };
 
-module.exports = authMiddleware;
+module.exports = auth;

@@ -1,245 +1,185 @@
+/* General Reset */
 * {
-    margin: 0;
-    padding: 0;
-    outline: none;
-    font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
 }
 
 body,
 html {
-    min-width: 1024px;
-    background-color: #2f353a;
+  min-width: 1024px;
+  background: #2f353a;
+  color: #e4e7ea;
+  overflow-x: hidden;
 }
 
-hr {
-    color: rgb(95, 95, 95);
-    background-color: rgb(95, 95, 95);
-    border-top: 2px solid rgb(95, 95, 95);
-    border-bottom: none;
-    border-left: none;
-    border-right: none;
-}
-
+/* Links */
 a {
-    text-decoration: none;
-    color: #222;
+  text-decoration: none;
+  color: #3498db;
+  transition: color 0.3s ease;
 }
 
-/* header */
+a:hover {
+  color: #1abc9c;
+}
+
+/* Header */
 header {
-    z-index: 10;
-    width: 100%;
-    /* position: sticky; */
-    padding: 20px 10px;
-    background-color: #3a4149;
-    border-bottom: 1px solid #23282c;
+  z-index: 10;
+  width: 100%;
+  padding: 15px 10px;
+  background: #3a4149;
+  border-bottom: 1px solid #23282c;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header h2 {
-    display: block;
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #fff;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* =========== Menu ================= */
+/* Sidebar */
 .sidebar {
-    float: left;
-    width: 170px;
+  float: left;
+  width: 170px;
+  background: #3b4149;
+  padding-top: 1rem;
+  border-right: 1px solid #23282c;
 }
 
 .sidebar .nav-title {
-    padding: 1.1rem 1rem;
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #e4e7ea;
-    text-align: center;
-    text-transform: uppercase;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #e4e7ea;
+  text-align: center;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .sidebar .nav-item {
-    position: relative;
-    margin: 0;
-    transition: background .3s ease-in-out;
+  margin: 0;
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .sidebar .nav-link {
-    display: block;
-    padding: 1em 1em;
-    color: #73818f;
-    text-decoration: none;
-    background: 0 0;
-    cursor: pointer;
+  display: block;
+  padding: 0.8em 1em;
+  color: #73818f;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-radius: 3px;
 }
 
 .sidebar .nav-link.active,
 .sidebar .nav-link.active i {
-    background-color: #20a8d8;
-    color: #fff;
+  background: #20a8d8;
+  color: #fff;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar .nav-link:hover:not(.active),
 .sidebar .nav-link:hover:not(.active) i {
-    background-color: #4a7b8d;
-    color: #fff;
+  background: #4a7b8d;
+  color: #fff;
+  transform: translateX(5px);
 }
 
 .sidebar .nav-link i {
-    display: inline-block;
-    width: 1.09375em;
-    margin: 0 .5rem 0 0;
-    font-size: 1em;
-    color: #73818f;
-    text-align: center;
+  margin-right: 10px;
+  font-size: 0.9em;
+  color: #73818f;
+  transition: color 0.3s ease;
 }
 
-/* ==================== main ==================== */
+/* Main Content */
 .main {
-    float: left;
-    width: calc(100% - 175px);
-    /* 150px la width cua aside */
+  float: left;
+  width: calc(100% - 170px);
+  padding: 20px;
+  background: #2f353a;
 }
 
-.main>div {
-    /* Mặc định ẩn mọi thứ trong main */
-    display: none;
+.main > div {
+  display: none;
 }
 
-/* ===================== HOME ================== */
+/* Home Section */
 .home .canvasContainer {
-    display: inline-block;
-    width: 49%;
-    margin: 50px 0;
+  display: inline-block;
+  width: 49%;
+  margin: 30px 0;
+  background: #3e464d;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Flex Container */
 .flexContain {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: row;
-    flex-direction: row;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
 }
 
+/* Product Image Hover */
+.hideImg td {
+  position: relative; /* Đảm bảo hình ảnh nằm đúng vị trí */
+}
 
-/* =================== Các class xử lý ảnh ================ */
-/* Ảnh ẩn trong td */
 .hideImg td img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 0;
-    border-radius: 5px;
-    transition-duration: .1s;
-    z-index: 2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 0;
+  border-radius: 5px;
+  transition: height 0.2s ease-in-out;
+  z-index: 2;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Thêm bóng nhẹ cho ảnh */
 }
 
 .hideImg td:hover img {
-    height: 150px;
+  height: 150px;
 }
 
-/* Ảnh đại diện */
-.hinhDaiDien {
-    max-height: 100px;
-    max-width: 100px;
-}
-
-/* ==================== table ====================== */
+/* Table Styles */
 .table-outline {
-    width: 100%;
-    border: 1px solid #23282c;
+  width: 100%;
+  border: 1px solid #23282c;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-
-/* phần chứa header (th) */
 .table-header {
     width: 100%;
 }
 
 .table-header th {
-    color: #e4e7ea;
-    background-color: #3e464d;
-    border-color: #23282c;
-}
-
-.table-header th {
-    cursor: pointer;
+  color: #e4e7ea;
+  background: #3e464d;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  padding: 0.75rem;
+  border-bottom: 1px solid #23282c;
+  cursor: pointer;
 }
 
 .table-header th i {
-    /* Ẩn icon sort */
-    transform: scale(0);
-    transition-duration: .2s;
+  transform: scale(0);
+  transition: transform 0.2s;
 }
 
 .table-header th:hover i {
-    transform: scale(1)
+  transform: scale(1);
 }
-
-.table-header th,
-.table-content td {
-    padding: .75rem;
-    text-align: center;
-    vertical-align: top;
-    border-top: 1px solid #23282c;
-}
-
-/* phần chứa nội dung  */
-.table-content {
-    min-height: 200px;
-    max-height: 550px;
-    overflow: auto;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.table-content tr:nth-of-type(even) {
-    background-color: #3e4144;
-}
-
-.table-content td {
-    position: relative;
-    color: #e4e7ea;
-}
-
-/* Link chi tiet san pham */
-.table-content td a {
-    display: block;
-    color: #e4e7ea;
-}
-
-.table-content td a:hover {
-    text-decoration: underline;
-}
-
-/* Hành động */
-.table-content td i {
-    padding: .3em;
-    cursor: pointer;
-}
-
-.table-content td i.fa-wrench:hover {
-    color: #63c2de
-}
-
-.table-content td i.fa-trash:hover {
-    color: #f86c6b
-}
-
-.table-content td i.fa-check:hover {
-    color: #5ce457d8
-}
-
-.table-content td i.fa-remove:hover {
-    color: #f86c6b
-}
-
-/*  phần footer table  */
 .table-footer {
     background-color: #3e464d;
     padding: .75rem;
@@ -251,6 +191,7 @@ header h2 {
 .table-footer button,
 .table-footer select {
     padding: 5px 10px;
+    margin: 10px;
     border: 3px solid transparent;
     background-color: #cccece;
 }
@@ -268,188 +209,101 @@ header h2 {
     border-color: #73818f;
 }
 
-/* ================== Những table thêm sửa sẽ có dạng overlay -> mặc định ẩn  ====================== */
+.table-content td {
+  padding: 0.75rem;
+  text-align: center;
+  color: #e4e7ea;
+  border-top: 1px solid #23282c;
+  font-size: 0.85em;
+  position: relative;
+}
+
+.table-content tr:nth-of-type(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.table-content td a {
+  color: #1abc9c;
+  transition: color 0.3s ease;
+}
+
+.table-content td a:hover {
+  text-decoration: underline;
+  color: #16a085;
+}
+
+/* Action Icons */
+.table-content td i {
+  font-size: 1.2em; /* Tăng kích thước icon */
+  padding: 0.4em;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.table-content td i:hover {
+  transform: scale(1.2);
+}
+
+.table-content td i.fa-wrench:hover {
+  color: #63c2de;
+}
+
+.table-content td i.fa-trash:hover {
+  color: #f86c6b;
+}
+
+/* Edit Overlay (Form Sửa) */
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    z-index: 14;
-    transition: .2s ease;
-    transform: scale(0);
-    background-color: #020202d8;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  z-index: 14;
+  transition: 0.2s ease;
+  transform: scale(0);
+  background-color: #020202d8;
 }
 
 .overlayTable {
-    margin: 50px auto;
-    width: auto;
-    background-color: #23282c;
+  margin: 50px auto;
+  width: auto;
+  background-color: #23282c;
 }
 
 .overlayTable td:first-child {
-    text-align: right;
+  text-align: right;
 }
 
 .overlayTable input {
-    padding: 4px 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #e7e7e7;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #e7e7e7;
 }
 
 .overlayTable input[type="file"] {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .close {
-    /* nút tắt form */
-    position: fixed;
-    top: 5px;
-    right: 5px;
-    font-size: 3rem;
-    width: 1em;
-    height: 1em;
-    line-height: 1em;
-    text-align: center;
-    color: #aaa;
-    cursor: pointer;
-    transition: .2s ease;
+  /* nút tắt form */
+  position: fixed;
+  top: 5px;
+  right: 5px;
+  font-size: 3rem;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  text-align: center;
+  color: #aaa;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .close:hover {
-    color: #fff;
-    background-color: #f33;
-    border-radius: 50%;
-}
-
-/* ======================= id =================== */
-
-/* Div Tìm theo ngày */
-.timTheoNgay {
-    float: left;
-    margin-right: 50px;
-    padding-right: 10px;
-    color: #e4e7ea;
-    border-right: 2px solid #777;
-}
-
-/* ========================= tooltip from w3school  ====================== */
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
-
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 50px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 21;
-    bottom: -150%;
-    left: 50%;
-    margin-left: -25px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.tooltip .tooltiptext::before {
-    content: "";
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #555 transparent;
-}
-
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-
-/* ======================== Switch Slider (Togggle) ======================= */
-/* The switch - the box around the slider */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 25px;
-    height: 15px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 15px;
-    width: 15px;
-    left: 0px;
-    bottom: 0px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-}
-
-input:checked+.slider {
-    background-color: #2196F3;
-}
-
-input:focus+.slider {
-    box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked+.slider:before {
-    -webkit-transform: translateX(13px);
-    -ms-transform: translateX(13px);
-    transform: translateX(13px);
-}
-
-/* Rounded sliders */
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
-
-/* ========= ScrollBar ============ */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: #eee;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #999;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #bbb;
+  color: #fff;
+  background-color: #f33;
+  border-radius: 50%;
 }

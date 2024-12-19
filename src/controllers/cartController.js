@@ -1,44 +1,126 @@
 const Cart = require('../models/cartModel');
-const User = require('../models/userModel');
+const Product = require('../models/productModel');
 
-// Cập nhật giỏ hàng
-exports.updateCart = async (req, reply) => {
-  const { username } = req.params;
-  const { products } = req.body;
-
-  try {
-    // Tìm người dùng
-    const user = await User.findOne({ username });
-    if (!user) {
-      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
+const cartController = {
+  async getCart(req, reply) {
+    try {
+      const userId = req.user._id;
+      const cart = await Cart.findOne({ user: userId }).populate('items.product');
+      return reply.send({ cart: cart ? cart.items : [] });
+    } catch (error) {
+      console.error('Error getting cart:', error);
+      return reply.status(500).send({ message: 'Lỗi khi lấy giỏ hàng' });
     }
+  },
 
-    // Cập nhật giỏ hàng
-    const cart = await Cart.findOneAndUpdate(
-      { userId: user._id },
-      { products },
-      { new: true, upsert: true } // Tạo mới nếu không tìm thấy
-    );
+  async addToCart(req, reply) {
+    try {
+      const userId = req.user._id;
+      const { productId, quantity } = req.body;
 
-    reply.send({ message: "Cập nhật giỏ hàng thành công!", cart });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi cập nhật giỏ hàng!", error: err });
+      const product = await Product.findById(productId);
+      if (!product) {
+        return reply.status(404).send({ message: 'Sản phẩm không tồn tại' });
+      }
+
+      let cart = await Cart.findOne({ user: userId });
+      if (!cart) {
+        cart = new Cart({ user: userId, items: [] });
+      }
+
+      const existingItem = cart.items.find(
+        item => item.product.toString() === productId
+      );
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.items.push({ product: productId, quantity });
+      }
+
+      await cart.save();
+      
+      // Populate product details before sending response
+      await cart.populate('items.product');
+      return reply.send({ message: 'Thêm vào giỏ thành công', cart: cart.items });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      return reply.status(500).send({ message: 'Lỗi khi thêm vào giỏ hàng' });
+    }
+  },
+
+  async updateCartItem(req, reply) {
+    try {
+      const userId = req.user._id;
+      const { productId, quantity } = req.body;
+
+      const cart = await Cart.findOne({ user: userId });
+      if (!cart) {
+        return reply.status(404).send({ message: 'Không tìm thấy giỏ hàng' });
+      }
+
+      const item = cart.items.find(
+        item => item.product.toString() === productId
+      );
+
+      if (!item) {
+        return reply.status(404).send({ message: 'Sản phẩm không có trong giỏ' });
+      }
+
+      if (quantity === 0) {
+        cart.items = cart.items.filter(
+          item => item.product.toString() !== productId
+        );
+      } else {
+        item.quantity = quantity;
+      }
+
+      await cart.save();
+      await cart.populate('items.product');
+      return reply.send({ message: 'Cập nhật giỏ hàng thành công', cart: cart.items });
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      return reply.status(500).send({ message: 'Lỗi khi cập nhật giỏ hàng' });
+    }
+  },
+
+  async removeFromCart(req, reply) {
+    try {
+      const userId = req.user._id;
+      const { productId } = req.params;
+
+      const cart = await Cart.findOne({ user: userId });
+      if (!cart) {
+        return reply.status(404).send({ message: 'Không tìm thấy giỏ hàng' });
+      }
+
+      cart.items = cart.items.filter(
+        item => item.product.toString() !== productId
+      );
+
+      await cart.save();
+      await cart.populate('items.product');
+      return reply.send({ message: 'Xóa sản phẩm thành công', cart: cart.items });
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      return reply.status(500).send({ message: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng' });
+    }
+  },
+
+  async clearCart(req, reply) {
+    try {
+      const userId = req.user._id;
+      const cart = await Cart.findOneAndUpdate(
+        { user: userId },
+        { items: [] },
+        { new: true }
+      );
+      return reply.send({ message: 'Đã xóa giỏ hàng', cart: [] });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      return reply.status(500).send({ message: 'Lỗi khi xóa giỏ hàng' });
+    }
   }
 };
 
-// Lấy giỏ hàng của người dùng
-exports.getCart = async (req, reply) => {
-  const { username } = req.params;
-
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
-    }
-
-    const cart = await Cart.findOne({ userId: user._id });
-    reply.send({ success: true, cart });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi lấy giỏ hàng!", error: err });
-  }
-};
+module.exports = cartController;

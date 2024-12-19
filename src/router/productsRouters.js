@@ -1,14 +1,31 @@
-const productsController = require("../controllers/productsController");
+const productsController = require('../controllers/productsController');
+const auth = require('../middleware/auth');
 
-async function routes(fastify, options) {
-  // Routes cho products
-  fastify.get("/", productsController.getAllProducts);         // Route gốc
-  fastify.get("/statistics", productsController.getStatistics); // Route tĩnh
-  fastify.get("/admin", productsController.getProductsAdmin);   // Route tĩnh
-  fastify.get("/:id", productsController.getProductById);      // Route động
-  fastify.post("/", productsController.createProduct);
-  fastify.put("/:masp", productsController.updateProduct);
-  fastify.delete("/:masp", productsController.deleteProduct);
+async function productRoutes(fastify, options) {
+  // Routes công khai
+  // Lấy danh sách sản phẩm
+  fastify.get('/', productsController.getProducts);
+
+  // Lấy chi tiết sản phẩm
+  fastify.get('/:id', productsController.getProduct);
+
+  // Tìm kiếm sản phẩm
+  fastify.get('/search', productsController.searchProducts);
+
+  // Routes cho admin
+  fastify.register(async function adminRoutes(fastify, options) {
+    // Thêm middleware auth cho tất cả routes trong group này
+    fastify.addHook('preHandler', auth);
+
+    // Thêm sản phẩm mới
+    fastify.post('/', productsController.addProduct);
+
+    // Cập nhật sản phẩm
+    fastify.put('/:id', productsController.updateProduct);
+
+    // Xóa sản phẩm
+    fastify.delete('/:id', productsController.deleteProduct);
+  });
 }
 
-module.exports = routes;
+module.exports = productRoutes;

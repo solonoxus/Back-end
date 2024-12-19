@@ -1,110 +1,183 @@
-const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const userService = require('../services/userService');
+const User = require('../models/userModel');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config/environment');
 
-// Lấy danh sách người dùng
-exports.getUser = async (request, reply) => {
-  try {
-    const users = await User.find(); // Sử dụng model User
-    reply.view("/nguoidung", { title: "Danh sách người dùng", users });
-  } catch (error) {
-    reply
-      .status(500)
-      .send({ message: "Lỗi khi lấy danh sách người dùng!", error });
-  }
+// Tạo JWT token
+const createToken = (userId) => {
+  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '24h' });
 };
 
-// Đăng ký người dùng mới
-exports.createUser = async (request, reply) => {
-  try {
-    const { name, email, password } = request.body; 
-    if (!name || !email || !password) {
-      return reply.status(400).send({ message: "Thiếu thông tin người dùng!" });
+const userController = {
+  // Đăng ký
+  async register(req, reply) {
+    try {
+      const { username, password, email, name, phone, address } = req.body;
+      
+      const user = await User.create({
+        username,
+        password,
+        email,
+        name,
+        phone,
+        address
+      });
+
+      const token = createToken(user._id);
+      
+      return reply.code(201).send({
+        success: true,
+        data: {
+          user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            name: user.name,
+            isAdmin: user.isAdmin
+          },
+          token
+        }
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
     }
+  },
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
-    await newUser.save();
+  // Đăng nhập
+  async login(req, reply) {
+    try {
+      const { username, password } = req.body;
+      
+      const user = await User.findOne({ username });
+      if (!user) {
+        return reply.code(401).send({
+          success: false,
+          message: 'Tài khoản không tồn tại'
+        });
+      }
 
-    reply.status(201).send({ message: "Đăng ký người dùng thành công!", user: newUser });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi đăng ký người dùng!", error: err });
-  }
-};
+      const isMatch = await user.checkPassword(password);
+      if (!isMatch) {
+        return reply.code(401).send({
+          success: false,
+          message: 'Mật khẩu không đúng'
+        });
+      }
 
-// Đăng nhập người dùng
-exports.loginUser = async (req, reply) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return reply.status(401).send({ message: "Sai email hoặc mật khẩu!" });
+      const token = createToken(user._id);
+      
+      return reply.code(200).send({
+        success: true,
+        data: {
+          user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            name: user.name,
+            isAdmin: user.isAdmin
+          },
+          token
+        }
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
     }
-    reply.send({ message: "Đăng nhập thành công!", user });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi đăng nhập!", error: err });
-  }
-};
-exports.logoutUser = async (request, reply) => {
-  try {
-    // Xóa session/token nếu có
-    request.session = null;
-    
-    reply.send({ success: true, message: "Đăng xuất thành công" });
-  } catch (error) {
-    reply
-      .status(500)
-      .send({ success: false, message: "Lỗi khi đăng xuất", error });
-  }
-};
+  },
 
-// Xóa người dùng
-exports.deleteUser = async (req, reply) => {
-  const { username } = req.params;
-  try {
-    const user = await User.findOneAndDelete({ username });
-    if (!user) {
-      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
+  // Lấy thông tin user
+  async getCurrentUser(req, reply) {
+    try {
+      const user = await User.findById(req.user.id).select('-password');
+      return reply.code(200).send({
+        success: true,
+        data: user
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
     }
-    reply.send({ message: "Xóa người dùng thành công!" });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi xóa người dùng!", error: err });
-  }
-};
+  },
 
-// Cập nhật trạng thái người dùng
-exports.updateUser = async (req, reply) => {
-  const { username } = req.params;
-  const updateData = req.body;
-  try {
-    const user = await User.findOneAndUpdate({ username }, updateData, { new: true });
-    if (!user) {
-      return reply.status(404).send({ message: "Không tìm thấy người dùng!" });
+  // Cập nhật thông tin user
+  async updateUser(req, reply) {
+    try {
+      const { name, email, phone, address } = req.body;
+      const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { name, email, phone, address },
+        { new: true }
+      ).select('-password');
+
+      return reply.code(200).send({
+        success: true,
+        data: user
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
     }
-    reply.send({ message: "Cập nhật người dùng thành công!", user });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi cập nhật người dùng!", error: err });
+  },
+
+  // Thêm sản phẩm vào giỏ hàng
+  async addToCart(req, reply) {
+    try {
+      const { productId, quantity } = req.body;
+      const user = await User.findById(req.user.id);
+
+      // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+      const cartItemIndex = user.cart.findIndex(
+        item => item.product.toString() === productId
+      );
+
+      if (cartItemIndex > -1) {
+        // Nếu có rồi thì cập nhật số lượng
+        user.cart[cartItemIndex].quantity += quantity;
+      } else {
+        // Nếu chưa có thì thêm mới
+        user.cart.push({ product: productId, quantity });
+      }
+
+      await user.save();
+
+      return reply.code(200).send({
+        success: true,
+        message: 'Thêm vào giỏ hàng thành công',
+        data: user.cart
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
+  },
+
+  // Lấy giỏ hàng của user
+  async getCart(req, reply) {
+    try {
+      const user = await User.findById(req.user.id)
+        .populate('cart.product');
+
+      return reply.code(200).send({
+        success: true,
+        data: user.cart
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
   }
 };
 
-exports.getCurrentUser = async (req, reply) => {
-  const user = await userService.getCurrentUser(req.headers.authorization);
-  if (!user) {
-    return reply.status(401).send({ message: 'Unauthorized' });
-  }
-  reply.send({ user });
-};
-
-exports.getListUser = async (req, reply) => {
-  const users = await userService.getListUser();
-  reply.send({ users });
-};
-
-exports.updateCurrentUser = async (req, reply) => {
-  const updatedUser = await userService.setCurrentUser(req.body);
-  if (!updatedUser) {
-    return reply.status(400).send({ message: 'Update failed' });
-  }
-  reply.send({ user: updatedUser });
-};
-
+module.exports = userController;

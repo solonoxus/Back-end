@@ -1,113 +1,193 @@
-// Chuyển sang gọi API để xác thực admin
-async function checkAdmin(username, pass) {
+// API endpoint
+const API_URL = "/api";
+const ENDPOINTS = {
+  // Auth
+  LOGIN: "/users/login",
+  REGISTER: "/users/register",
+  CURRENT_USER: "/users/me",
+
+  // Products
+  PRODUCTS: "/products",
+  PRODUCT_SEARCH: "/products/search",
+  PRODUCT_BY_CODE: "/products/code",
+  PRODUCT_RATE: "/products/rate",
+
+  // Cart
+  CART: "/cart",
+
+  // Admin
+  ADMIN_LOGIN: "/admin/login",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_PRODUCTS: "/admin/products"
+};
+
+// Token management
+function setToken(token) {
+  localStorage.setItem("token", token);
+}
+
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+// API caller
+async function callApi(endpoint, options = {}) {
   try {
-    const response = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ username, pass })
+    const token = getToken();
+    const headers = {
+      "Content-Type": "application/json",
+      ...options.headers
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers
     });
+
     const data = await response.json();
 
-    if (data.success) {
-      window.localStorage.setItem("admin", true);
-      return true;
+    if (!response.ok) {
+      throw new Error(data.message || "Có lỗi xảy ra");
     }
-    return false;
-  } catch (err) {
-    console.error("Lỗi khi đăng nhập admin:", err);
+
+    return data;
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+}
+
+// Admin functions
+async function adminLogin(username, password) {
+  try {
+    const { data } = await callApi(ENDPOINTS.ADMIN_LOGIN, {
+      method: "POST",
+      body: JSON.stringify({ username, password })
+    });
+    setToken(data.token);
+    return data;
+  } catch (error) {
+    throw new Error(error.message || "Đăng nhập admin thất bại");
+  }
+}
+
+async function getListAdmin() {
+  try {
+    const { data } = await callApi(ENDPOINTS.ADMIN_USERS, {
+      method: "GET"
+    });
+    return data.filter((user) => user.isAdmin);
+  } catch (error) {
+    console.error("Lỗi lấy danh sách admin:", error);
+    return [];
+  }
+}
+
+async function setListAdmin(adminList) {
+  try {
+    for (const admin of adminList) {
+      await callApi(ENDPOINTS.ADMIN_USERS, {
+        method: "POST",
+        body: JSON.stringify({
+          ...admin,
+          isAdmin: true
+        })
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error("Lỗi cập nhật danh sách admin:", error);
     return false;
   }
 }
 
 // Hàm khởi tạo, tất cả các trang đều cần
 async function khoiTao() {
-  // get data từ localstorage
-  list_products = await getListProducts() || list_products;
-  adminInfo =  await getListAdmin() || adminInfo;
-
-  handleNewsletterForm();
-  setupEventTaiKhoan();
-  capNhat_ThongTin_CurrentUser();
-  addEventCloseAlertButton();
-}
-
-// Xử lý form đăng ký nhận tin trong footer
-function handleNewsletterForm() {
-  const form = document.querySelector('.footer-col form');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const email = this.querySelector('input[type="email"]').value;
-      if (email) {
-        // Có thể thêm API call để lưu email vào database
-        addAlertBox('Cảm ơn bạn đã đăng ký nhận tin!', '#4CAF50', '#fff');
-        this.reset();
-      } else {
-        addAlertBox('Vui lòng nhập email của bạn!', '#f44336', '#fff');
-      }
-    });
+  try {
+    setupEventTaiKhoan();
+    addEventCloseAlertButton();
+    await capNhat_ThongTin_CurrentUser();
+  } catch (error) {
+    console.error("Lỗi khởi tạo:", error);
+    addAlertBox(
+      "Có lỗi xảy ra khi khởi tạo ứng dụng.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
   }
 }
 
 // ========= Các hàm liên quan tới danh sách sản phẩm =========
 // Localstorage cho dssp: 'ListProducts
-async function setListProducts(products) {
-  // Gọi API để lưu danh sách sản phẩm vào server
-  const response = await fetch('/api/products', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ products }) // Gửi danh sách sản phẩm
-  });
+// Products Management
+async function getListProducts(options = {}) {
+  try {
+    const { category, search, sort, order, page, limit } = options;
+    const params = new URLSearchParams();
 
-  if (response.ok) {
-    alert("Danh sách sản phẩm đã được lưu thành công!");
-  } else {
-    const errorData = await response.json();
-    alert("Lỗi: " + errorData.message);
+    if (category) params.append("category", category);
+    if (search) params.append("search", search);
+    if (sort) params.append("sort", sort);
+    if (order) params.append("order", order);
+    if (page) params.append("page", page);
+    if (limit) params.append("limit", limit);
+
+    const data = await callApi(`${ENDPOINTS.PRODUCTS}?${params}`);
+    return data.products;
+  } catch (error) {
+    console.error("Lỗi lấy danh sách sản phẩm:", error);
+    return [];
   }
 }
 
-async function getListProducts() {
-  // Gọi API để lấy danh sách sản phẩm từ server
-  const response = await fetch('/api/products');
-  const data = await response.json();
-
-  if (data.success) {
-    return data.products; // Trả về danh sách sản phẩm
-  } else {
-    alert("Lỗi khi lấy danh sách sản phẩm: " + data.message);
-    return []; // Trả về mảng rỗng nếu có lỗi
-  }
-}
-
-function timKiemTheoTen(list, ten, soluong) {
-  var tempList = copyObject(list);
-  var result = [];
-  ten = ten.split(" ");
-
-  for (var sp of tempList) {
-    var correct = true;
-    for (var t of ten) {
-      if (sp.name.toUpperCase().indexOf(t.toUpperCase()) < 0) {
-        correct = false;
-        break;
-      }
+async function setListProducts(productList) {
+  try {
+    // Xóa tất cả sản phẩm cũ
+    const currentProducts = await getListProducts();
+    for (const product of currentProducts) {
+      await callApi(`${ENDPOINTS.ADMIN_PRODUCTS}/${product._id}`, {
+        method: "DELETE"
+      });
     }
-    if (correct) {
-      result.push(sp);
-    }
-  }
 
-  return result;
+    // Thêm sản phẩm mới
+    for (const product of productList) {
+      await callApi(ENDPOINTS.ADMIN_PRODUCTS, {
+        method: "POST",
+        body: JSON.stringify(product)
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error("Lỗi cập nhật danh sách sản phẩm:", error);
+    return false;
+  }
 }
 
-function timKiemTheoMa(list, ma) {
-  for (var l of list) {
-    if (l.masp == ma) return l;
+async function timKiemTheoTen(ten, limit = 10) {
+  try {
+    const data = await callApi(
+      `${ENDPOINTS.PRODUCT_SEARCH}?q=${encodeURIComponent(ten)}&limit=${limit}`
+    );
+    return data.products;
+  } catch (error) {
+    console.error("Lỗi tìm kiếm sản phẩm:", error);
+    return [];
+  }
+}
+
+async function timKiemTheoMa(ma) {
+  try {
+    const data = await callApi(`${ENDPOINTS.PRODUCT_BY_CODE}/${ma}`);
+    return data.product;
+  } catch (error) {
+    console.error("Lỗi tìm kiếm sản phẩm:", error);
+    return null;
   }
 }
 
@@ -156,199 +236,234 @@ function animateCartNumber() {
   }, 1200);
 }
 
+// Cart Management
+async function getCart() {
+  try {
+    const data = await callApi(ENDPOINTS.CART);
+    return data.cart;
+  } catch {
+    return [];
+  }
+}
+
 async function themVaoGioHang(masp, tensp) {
-  var user = await getCurrentUser(); // Lấy thông tin người dùng từ server
-  if (!user) {
-    alert("Bạn cần đăng nhập để mua hàng !");
-    showTaiKhoan(true);
-    return;
-  }
-  if (user.off) {
-    alert("Tài khoản của bạn hiện đang bị khóa nên không thể mua hàng!");
-    addAlertBox("Tài khoản của bạn đã bị khóa bởi Admin.", "#aa0000", "#fff", 10000);
-    return;
-  }
-  var t = new Date();
-  var daCoSanPham = false;
-
-  for (var i = 0; i < user.products.length; i++) {
-    if (user.products[i].ma == masp) {
-      user.products[i].soluong++;
-      daCoSanPham = true;
-      break;
+  try {
+    if (!getToken()) {
+      addAlertBox(
+        "Bạn cần đăng nhập để thêm vào giỏ hàng.",
+        "#dc3545",
+        "#fff",
+        4000
+      );
+      showTaiKhoan(true);
+      return;
     }
-  }
 
-  if (!daCoSanPham) {
-    user.products.push({
-      ma: masp,
-      soluong: 1,
-      date: t
+    await callApi(ENDPOINTS.CART, {
+      method: "POST",
+      body: JSON.stringify({
+        productId: masp,
+        quantity: 1
+      })
     });
+
+    addAlertBox("Đã thêm " + tensp + " vào giỏ.", "#17c671", "#fff", 4000);
+    await capNhat_ThongTin_CurrentUser();
+    animateCartNumber();
+  } catch (error) {
+    addAlertBox(
+      error.message || "Thêm vào giỏ thất bại.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
   }
+}
 
-  // Gọi API để cập nhật giỏ hàng
-  await fetch(`/api/cart/${user.username}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ products: user.products })
-  });
+async function updateCart(productId, quantity) {
+  try {
+    await callApi(ENDPOINTS.CART, {
+      method: "PUT",
+      body: JSON.stringify({ productId, quantity })
+    });
+    await capNhat_ThongTin_CurrentUser();
+  } catch (error) {
+    addAlertBox(
+      error.message || "Cập nhật giỏ hàng thất bại.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
+  }
+}
 
-  animateCartNumber();
-  addAlertBox("Đã thêm " + tensp + " vào giỏ.", "#17c671", "#fff", 3500);
-  setCurrentUser(user); // cập nhật giỏ hàng cho user hiện tại
-  updateListUser(user); // cập nhật list user
-  capNhat_ThongTin_CurrentUser(); // cập nhật giỏ hàng
+async function removeFromCart(productId) {
+  try {
+    await callApi(`${ENDPOINTS.CART}/${productId}`, {
+      method: "DELETE"
+    });
+    await capNhat_ThongTin_CurrentUser();
+  } catch (error) {
+    addAlertBox(
+      error.message || "Xóa sản phẩm thất bại.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
+  }
+}
+
+async function clearCart() {
+  try {
+    await callApi(ENDPOINTS.CART, {
+      method: "DELETE"
+    });
+    await capNhat_ThongTin_CurrentUser();
+  } catch (error) {
+    addAlertBox(
+      error.message || "Xóa giỏ hàng thất bại.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
+  }
+}
+
+async function getTongSoLuongSanPhamTrongGioHang() {
+  try {
+    const cart = await getCart();
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  } catch {
+    return 0;
+  }
+}
+
+async function getSoLuongSanPhamTrongUser(productId) {
+  try {
+    const cart = await getCart();
+    const item = cart.find((item) => item.product._id === productId);
+    return item ? item.quantity : 0;
+  } catch {
+    return 0;
+  }
 }
 
 // ============================== TÀI KHOẢN ============================
-
 // Hàm get set cho người dùng hiện tại đã đăng nhập
 async function getCurrentUser() {
-  const response = await fetch("/api/users/current");
-  const data = await response.json();
-  if (data.user) {
-    return data.user; // Trả về thông tin người dùng
-  } else {
-    return null; // Nếu không có người dùng, trả về null
-  }
-}
-
-async function setCurrentUser(user) {
-  const response = await fetch("/api/users/current", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(user)
-  });
-  const data = await response.json();
-  return data.user;
-}
-
-// Hàm get set cho danh sách người dùng
-async function getListUser() {
-  const response = await fetch("/api/users");
-  const data = await response.json();
-  return data.users;
-}
-
-function setListUser(l) {
-  window.localStorage.setItem("ListUser", JSON.stringify(l));
-}
-
-// Sau khi chỉnh sửa 1 user 'u' thì cần hàm này để cập nhật lại vào ListUser
-function updateListUser(u, newData) {
-  var list = getListUser();
-  for (var i = 0; i < list.length; i++) {
-    if (equalUser(u, list[i])) {
-      list[i] = newData ? newData : u;
-    }
-  }
-  setListUser(list);
-}
-
-// Sửa lại hàm logIn để sử dụng checkAdmin
-async function logIn(form) {
-  var name = form.username.value;
-  var pass = form.pass.value;
-  var newUser = new User(name, pass);
-
-  
-  // Lấy dữ liệu từ danh sách người dùng localstorage
-  var listUser = getListUser();
-
-  // Kiểm tra đăng nhập admin
-  const isAdmin = await checkAdmin(name, pass);
-  if (isAdmin) {
-    alert("Xin chào admin!");
-    window.location.assign("/views/admin.html");
-    return false;
-  }
-
- // Kiểm tra xem dữ liệu form có khớp với người dùng nào trong danh sách ko
- for (var u of listUser) {
-  if (equalUser(newUser, u)) {
-    if (u.off) {
-      alert("Tài khoản này đang bị khoá. Không thể đăng nhập.");
-      return false;
-    }
-
-    setCurrentUser(u);
-
-    // Reload lại trang -> sau khi reload sẽ cập nhật luôn giỏ hàng khi hàm setupEventTaiKhoan chạy
-    location.reload();
-    return false;
-  }
-}
-}
-
-function signUp(form) {
-  var ho = form.ho.value;
-  var ten = form.ten.value;
-  var email = form.email.value;
-  var username = form.newUser.value;
-  var pass = form.newPass.value;
-  var newUser = new User(username, pass, ho, ten, email);
-
-  // Lấy dữ liệu các khách hàng hiện có
-  var listUser = getListUser();
-
-  // Kiểm tra trùng admin
-  for (var ad of adminInfo) {
-    if (newUser.username == ad.username) {
-      alert("Tên đăng nhập đã có người sử dụng !!");
-      return false;
-    }
-  }
-
-  // Kiểm tra xem dữ liệu form có trùng với khách hàng đã có không
-  for (var u of listUser) {
-    if (newUser.username == u.username) {
-      alert("Tên đăng nhập đã có người sử dụng !!");
-      return false;
-    }
-  }
-
-  // Lưu người mới vào localstorage
-  listUser.push(newUser);
-  window.localStorage.setItem("ListUser", JSON.stringify(listUser));
-
-  // Đăng nhập vào tài khoản mới tạo
-  window.localStorage.setItem("CurrentUser", JSON.stringify(newUser));
-  alert("Đăng kí thành công, Bạn sẽ được tự động đăng nhập!");
-  location.reload();
-
-  return false;
-}
-
-async function logOut() {
   try {
-    // Gọi API đăng xuất
-    const response = await fetch("/api/users/logout", {
+    const data = await callApi(ENDPOINTS.CURRENT_USER);
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+function setCurrentUser(u) {
+  window.localStorage.setItem("CurrentUser", JSON.stringify(u));
+}
+
+// Hàm lấy danh sách người dùng
+async function getListUser() {
+  try {
+    const data = await callApi(ENDPOINTS.ADMIN_USERS);
+    return data.users;
+  } catch {
+    return [];
+  }
+}
+
+async function setListUser(userList) {
+  try {
+    // Xóa tất cả user cũ (trừ admin)
+    const currentUsers = await getListUser();
+    for (const user of currentUsers) {
+      if (!user.isAdmin) {
+        await callApi(`${ENDPOINTS.ADMIN_USERS}/${user._id}`, {
+          method: "DELETE"
+        });
+      }
+    }
+
+    // Thêm user mới
+    for (const user of userList) {
+      if (!user.isAdmin) {
+        await callApi(ENDPOINTS.REGISTER, {
+          method: "POST",
+          body: JSON.stringify(user)
+        });
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error("Lỗi cập nhật danh sách user:", error);
+    return false;
+  }
+}
+
+async function updateListUser(userId, newData) {
+  try {
+    await callApi(`${ENDPOINTS.ADMIN_USERS}/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify(newData)
+    });
+    return true;
+  } catch (error) {
+    console.error("Lỗi cập nhật thông tin user:", error);
+    return false;
+  }
+}
+
+async function logIn(form) {
+  try {
+    const data = await callApi(ENDPOINTS.LOGIN, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({})
+      body: JSON.stringify({
+        username: form.username.value,
+        password: form.password.value
+      })
     });
 
-    if (response.ok) {
-      // Xóa dữ liệu local
-      window.localStorage.removeItem("CurrentUser");
-      window.localStorage.removeItem("admin");
-      location.reload();
-    } else {
-      addAlertBox("Lỗi đăng xuất!", "#f44336", "#fff");
-    }
+    setToken(data.token);
+    await capNhat_ThongTin_CurrentUser();
+    addAlertBox("Đăng nhập thành công.", "#17c671", "#fff", 4000);
+    showTaiKhoan(false);
   } catch (error) {
-    console.error("Lỗi đăng xuất:", error);
-    addAlertBox("Lỗi đăng xuất!", "#f44336", "#fff");
+    addAlertBox(
+      error.message || "Đăng nhập thất bại.",
+      "#dc3545",
+      "#fff",
+      4000
+    );
   }
 }
 
+async function signUp(form) {
+  try {
+    const data = await callApi(ENDPOINTS.REGISTER, {
+      method: "POST",
+      body: JSON.stringify({
+        username: form.username.value,
+        password: form.password.value,
+        email: form.email.value,
+        name: form.name.value
+      })
+    });
+
+    setToken(data.token);
+    await capNhat_ThongTin_CurrentUser();
+    addAlertBox("Đăng ký thành công.", "#17c671", "#fff", 4000);
+    showTaiKhoan(false);
+  } catch (error) {
+    addAlertBox(error.message || "Đăng ký thất bại.", "#dc3545", "#fff", 4000);
+  }
+}
+
+function logOut() {
+  localStorage.removeItem("token");
+  capNhat_ThongTin_CurrentUser();
+  addAlertBox("Đăng xuất thành công.", "#17c671", "#fff", 4000);
+}
 
 // Hiển thị form tài khoản, giá trị truyền vào là true hoặc false
 function showTaiKhoan(show) {
@@ -430,30 +545,40 @@ function setupEventTaiKhoan() {
 }
 
 // Cập nhật số lượng hàng trong giỏ hàng + Tên current user
-function capNhat_ThongTin_CurrentUser() {
-  var u = getCurrentUser();
-  if (u) {
-    // Cập nhật số lượng hàng vào header
-    document.getElementsByClassName("cart-number")[0].innerHTML =
-      getTongSoLuongSanPhamTrongGioHang(u);
-    // Cập nhật tên người dùng
-    document
-      .getElementsByClassName("member")[0]
-      .getElementsByTagName("a")[0].childNodes[2].nodeValue = " " + u.username;
-    // bỏ class hide của menu người dùng
-    document.getElementsByClassName("menuMember")[0].classList.remove("hide");
+async function capNhat_ThongTin_CurrentUser() {
+  try {
+    const user = await getCurrentUser();
+    const nguoidungDiv = document.getElementsByClassName("nguoidung")[0];
+    const cartNumberDiv = document.getElementsByClassName("cart-number")[0];
+
+    if (user) {
+      nguoidungDiv.innerHTML = user.name || user.username;
+      const cart = await getCart();
+      cartNumberDiv.innerHTML = cart.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+    } else {
+      nguoidungDiv.innerHTML = "Tài khoản";
+      cartNumberDiv.innerHTML = "0";
+    }
+  } catch (error) {
+    console.error("Lỗi cập nhật thông tin:", error);
+    // Nếu có lỗi, reset về trạng thái chưa đăng nhập
+    document.getElementsByClassName("nguoidung")[0].innerHTML = "Tài khoản";
+    document.getElementsByClassName("cart-number")[0].innerHTML = "0";
   }
 }
 
 // tính tổng số lượng các sản phẩm của user u truyền vào
 function getTongSoLuongSanPhamTrongGioHang(u) {
-  if (!u || !u.products) return 0;
   var soluong = 0;
   for (var p of u.products) {
-    soluong += p.soluong || 0;
+    soluong += p.soluong;
   }
   return soluong;
 }
+
 // lấy số lương của sản phẩm NÀO ĐÓ của user NÀO ĐÓ được truyền vào
 function getSoLuongSanPhamTrongUser(tenSanPham, user) {
   for (var p of user.products) {
@@ -633,11 +758,11 @@ function addTopNav() {
             </div> <!-- End Social Topnav -->
 
             <ul class="top-nav-quicklink flexContain">
-                <li><a href="/views/index"><i class="fa fa-home"></i> Trang chủ</a></li>
-                <li><a href="/views/tintuc"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
-                <li><a href="/views/gioithieu"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
-                <li><a href="/views/trungtambaohanh"><i class="fa fa-wrench"></i> Bảo hành</a></li>
-                <li><a href="/views/lienhe"><i class="fa fa-phone"></i> Liên hệ</a></li>
+                <li><a href="index.html"><i class="fa fa-home"></i> Trang chủ</a></li>
+                <li><a href="tintuc.html"><i class="fa fa-newspaper-o"></i> Tin tức</a></li>
+                <li><a href="gioithieu.html"><i class="fa fa-info-circle"></i> Giới thiệu</a></li>
+                <li><a href="trungtambaohanh.html"><i class="fa fa-wrench"></i> Bảo hành</a></li>
+                <li><a href="lienhe.html"><i class="fa fa-phone"></i> Liên hệ</a></li>
             </ul> <!-- End Quick link -->
         </section><!-- End Section -->
     </div><!-- End Top Nav  -->`);
@@ -648,8 +773,8 @@ function addHeader() {
   document.write(`        
 	<div class="header group">
         <div class="logo">
-            <a href="/views/index">
-                <img src="/public/img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
+            <a href="index.html">
+                <img src="img/logo.jpg" alt="Trang chủ Smartphone Store" title="Trang chủ Smartphone Store">
             </a>
         </div> <!-- End Logo -->
 
@@ -676,14 +801,14 @@ function addHeader() {
                         Tài khoản
                     </a>
                     <div class="menuMember hide">
-                        <a href="/views/nguoidung">Trang người dùng</a>
+                        <a href="nguoidung.html">Trang người dùng</a>
                         <a onclick="if(window.confirm('Xác nhận đăng xuất ?')) logOut();">Đăng xuất</a>
                     </div>
 
                 </div> <!-- End Member -->
 
                 <div class="cart">
-                    <a href="giohang">
+                    <a href="giohang.html">
                         <i class="fa fa-shopping-cart"></i>
                         <span>Giỏ hàng</span>
                         <span class="cart-number"></span>
@@ -753,7 +878,6 @@ function addFooter() {
     </footer>
   `);
 }
-
 
 // Thêm contain Taikhoan
 function addContainTaiKhoan() {
@@ -848,7 +972,6 @@ function addContainTaiKhoan() {
     </div>`);
 }
 
-
 // https://stackoverflow.com/a/2450976/11898496
 function shuffleArray(array) {
   let currentIndex = array.length,
@@ -926,11 +1049,12 @@ function auto_Get_Database() {
     var img = a.getElementsByTagName("img")[0].src;
     console.log(img);
   }
+}
 
-  function getThongTinSanPhamFrom_TheGioiDiDong() {
-    javascript: (function () {
-      var s = document.createElement("script");
-      s.innerHTML = `
+function getThongTinSanPhamFrom_TheGioiDiDong() {
+  javascript: (function () {
+    var s = document.createElement("script");
+    s.innerHTML = `
 			(function () {
 				var ul = document.getElementsByClassName('parameter')[0];
 				var li_s = ul.getElementsByTagName('li');
@@ -974,20 +1098,6 @@ function auto_Get_Database() {
 	
 				console.log(JSON.stringify(result, null, "\t"));
 			})();`;
-      document.body.appendChild(s);
-    })();
-  }
-}
-
-async function getListAdmin() {
-  // Gọi API để lấy danh sách sản phẩm cho admin
-  const response = await fetch('/api/products/admin');
-  const data = await response.json();
-
-  if (data.success) {
-    return data.products; // Trả về danh sách sản phẩm
-  } else {
-    alert("Lỗi khi lấy danh sách sản phẩm cho admin: " + data.message);
-    return []; // Trả về mảng rỗng nếu có lỗi
-  }
+    document.body.appendChild(s);
+  })();
 }

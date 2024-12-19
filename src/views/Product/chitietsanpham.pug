@@ -6,7 +6,7 @@ html(lang="vi")
         meta(http-equiv="X-UA-Compatible", content="ie=edge")
         
         title Thế giới điện thoại
-        link(rel="shortcut icon", href="/public/img/favicon.ico")
+        link(rel="shortcut icon", href="../../public/img/favicon.ico")
 
         // Load font awesome icons
         link(
@@ -16,26 +16,27 @@ html(lang="vi")
         )
 
         // owl carousel libraries cho hình nhỏ
-        link(rel="stylesheet", href="/public/js/owlcarousel/owl.carousel.min.css")
-        link(rel="stylesheet", href="/public/js/owlcarousel/owl.theme.default.min.css")
-        script(src="/public/js/Jquery/Jquery.min.js")
-        script(src="/public/js/owlcarousel/owl.carousel.min.js")
+        link(rel="stylesheet", href="../../public/js/owlcarousel/owl.carousel.min.css")
+        link(rel="stylesheet", href="../../public/js/owlcarousel/owl.theme.default.min.css")
+        script(src="../../public/js/Jquery/Jquery.min.js")
+        script(src="../../public/js/owlcarousel/owl.carousel.min.js")
 
         // our files
         // css
-        link(rel="stylesheet", href="/public/css/style.css")
-        link(rel="stylesheet", href="/public/css/topnav.css")
-        link(rel="stylesheet", href="/public/css/header.css")
-        link(rel="stylesheet", href="/public/css/taikhoan.css")
-        link(rel="stylesheet", href="/public/css/trangchu.css")
-        link(rel="stylesheet", href="/public/css/home_products.css")
-        link(rel="stylesheet", href="/public/css/chitietsanpham.css")
-        link(rel="stylesheet", href="/public/css/footer.css")
+        link(rel="stylesheet", href="../../public/css/style.css")
+        link(rel="stylesheet", href="../../public/css/topnav.css")
+        link(rel="stylesheet", href="../../public/css/header.css")
+        link(rel="stylesheet", href="../../public/css/taikhoan.css")
+        link(rel="stylesheet", href="../../public/css/trangchu.css")
+        link(rel="stylesheet", href="../../public/css/home_products.css")
+        link(rel="stylesheet", href="../../public/css/chitietsanpham.css")
+        link(rel="stylesheet", href="../../public/css/footer.css")
         
         // js
-        script(src="/public/js/classes.js")
-        script(src="/public/js/dungchung.js")
-        script(src="/public/js/chitietsanpham.js")
+        script(src="../../public/js/data/products.js")
+        script(src="../../public/js/classes.js")
+        script(src="../../public/js/dungchung.js")
+        script(src="../../public/js/chitietsanpham.js")
 
     body
         script addTopNav();
@@ -60,24 +61,24 @@ html(lang="vi")
                         .area_price
                         
                         .ship(style="display: none;")
-                            img(src="/public/img/chitietsanpham/clock-152067_960_720.png")
+                            img(src="img/chitietsanpham/clock-152067_960_720.png")
                             div NHẬN HÀNG TRONG 1 GIỜ
                         
                         .area_promo
                             strong khuyến mãi
                             .promo
-                                img(src="/public/img/chitietsanpham/icon-tick.png")
+                                img(src="img/chitietsanpham/icon-tick.png")
                                 #detailPromo
                         
                         .policy
                             div
-                                img(src="/public/img/chitietsanpham/box.png")
+                                img(src="img/chitietsanpham/box.png")
                                 p Trong hộp có: Sạc, Tai nghe, Sách hướng dẫn, Cây lấy sim, Ốp lưng 
                             div
-                                img(src="/public/img/chitietsanpham/icon-baohanh.png")
+                                img(src="img/chitietsanpham/icon-baohanh.png")
                                 p Bảo hành chính hãng 12 tháng.
                             .last
-                                img(src="/public/img/chitietsanpham/1-1.jpg")
+                                img(src="img/chitietsanpham/1-1.jpg")
                                 p 1 đổi 1 trong 1 tháng nếu lỗi, đổi sản phẩm tại nhà trong 1 ngày.
                         
                         .area_order
@@ -90,6 +91,13 @@ html(lang="vi")
                     .info_product
                         h2 Thông số kỹ thuật
                         ul.info
+
+                // Commented out section from original HTML
+                //- #overlaycertainimg.overlaycertainimg
+                //-     .close(onclick="closecertain()") &times;
+                //-     .overlaycertainimg-content
+                //-         img#bigimg.bigimg(src="img/chitietsanpham/oppo-f9-red-2-400x460.png")
+                //-         .div_smallimg.owl-carousel
 
             #goiYSanPham
 

@@ -1,113 +1,110 @@
 function User(username, pass, ho, ten, email, products, donhang) {
-	this.ho = ho || '';
-	this.ten = ten || '';
-	this.email = email || '';
-
-	this.username = username;
-	this.pass = pass;
-	this.products = products || [];
-	this.donhang = donhang || [];
+    this.username = username || '';
+    this.pass = pass || '';
+    this.ho = ho || '';
+    this.ten = ten || '';
+    this.email = email || '';
+    this.products = products || [];
+    this.donhang = donhang || [];
 }
 
 function equalUser(u1, u2) {
-	return (u1.username == u2.username && u1.pass == u2.pass);
+    if (!u1 || !u2) return false;
+    return (u1.username === u2.username && u1.pass === u2.pass);
 }
 
-function Promo(name, value) { // khuyen mai
-	this.name = name; // giamGia, traGop, giaReOnline
-	this.value = value;
+function Promo(name, value) {
+    this.name = name;
+    this.value = value;
 
-	this.toWeb = function () {
-		if (!this.name) return "";
-		var contentLabel = "";
-		switch (this.name) {
-			case "giamgia":
-				contentLabel = `<i class="fa fa-bolt"></i> Giảm ` + this.value + `&#8363;`;
-				break;
+    this.toWeb = function() {
+        if (!this.name) return "";
+        
+        var contentLabel = "";
+        switch (this.name) {
+            case "giamgia":
+                contentLabel = `<i class="fa fa-bolt"></i> Giảm ${this.value}₫`;
+                break;
 
-			case "tragop":
-				contentLabel = `Trả góp ` + this.value + `%`;
-				break;
+            case "tragop":
+                contentLabel = `Trả góp ${this.value}%`;
+                break;
 
-			case "giareonline":
-				contentLabel = `Giá rẻ online`;
-				break;
+            case "giareonline":
+                contentLabel = "Giá rẻ online";
+                break;
 
-			case "moiramat":
-				contentLabel = "Mới ra mắt";
-				break;
-		}
+            case "moiramat":
+                contentLabel = "Mới ra mắt";
+                break;
+            
+            case "giarehon":
+                contentLabel = "Giá rẻ hơn";
+                break;
 
-		var label =
-			`<label class=` + this.name + `>
-			` + contentLabel + `
-		</label>`;
+            default:
+                return "";
+        }
 
-		return label;
-	}
+        return `<label class="${this.name}">${contentLabel}</label>`;
+    }
 }
-
-function Product(masp, name, img, price, star, rateCount, promo) {
-	this.masp = masp;
-	this.img = img;
-	this.name = name;
-	this.price = price;
-	this.star = star;
-	this.rateCount = rateCount;
-	this.promo = promo;
+function Product(masp, name, img, price, star, rateCount, promo, detail) {
+    this.masp = masp || '';
+    this.name = name || '';
+    this.img = img || '';
+    this.price = price || 0;
+    this.star = star || 0;
+    this.rateCount = rateCount || 0;
+    this.promo = promo || null;
+    this.detail = detail || {};
 }
 
 function addToWeb(p, ele, returnString) {
-	// Chuyển star sang dạng tag html
-	var rating = "";
-	if (p.rateCount > 0) {
-		for (var i = 1; i <= 5; i++) {
-			if (i <= p.star) {
-				rating += `<i class="fa fa-star"></i>`
-			} else {
-				rating += `<i class="fa fa-star-o"></i>`
-			}
-		}
-		rating += `<span>` + p.rateCount + ` đánh giá</span>`;
-	}
+    if (!p) return;
 
-	// Chuyển giá tiền sang dạng tag html
-	var price = `<strong>` + p.price + `&#8363;</strong>`;
-	if (p.promo && p.promo.name == "giareonline") {
-		// khuyến mãi 'Giá rẻ online' sẽ có giá thành mới
-		price = `<strong>` + p.promo.value + `&#8363;</strong>
-				<span>` + p.price + `&#8363;</span>`;
-	}
+    // Chuyển star sang dạng tag html
+    var rating = "";
+    if (p.rateCount > 0) {
+        for (var i = 1; i <= 5; i++) {
+            rating += i <= p.star 
+                ? '<i class="fa fa-star"></i>'
+                : '<i class="fa fa-star-o"></i>';
+        }
+        rating += `<span>${p.rateCount} đánh giá</span>`;
+    }
 
-	// tách theo dấu ' ' vào gắn lại bằng dấu '-', code này giúp bỏ hết khoảng trắng và thay vào bằng dấu '-'.
-	// Tạo link tới chi tiết sản phẩm, chuyển tất cả ' ' thành '-'
-	var chitietSp = '/views/chitietsanpham.html?' + p.name.split(' ').join('-');
+    // Chuyển giá tiền sang dạng tag html
+    var price = `<strong>${p.price}₫</strong>`;
+    if (p.promo && p.promo.name === "giareonline") {
+        price = `<strong>${p.promo.value}₫</strong>
+                <span>${p.price}₫</span>`;
+    }
 
-	// Cho mọi thứ vào tag <li>... </li>
-	var newLi =
-	`<li class="sanPham">
-		<a href="` + chitietSp + `">
-			<img src=` + p.img + ` alt="">
-			<h3>` + p.name + `</h3>
-			<div class="price">
-				` + price + `
-			</div>
-			<div class="ratingresult">
-				` + rating + `
-			</div>
-			` + (p.promo && p.promo.toWeb()) + `
-			<div class="tooltip">
-				<button class="themvaogio" onclick="themVaoGioHang('`+p.masp+`', '`+p.name+`'); return false;">
-					<span class="tooltiptext" style="font-size: 15px;">Thêm vào giỏ</span>
-					+
-				</button>
-			</div>
-		</a>
-	</li>`;
+    // Tạo link tới chi tiết sản phẩm
+    var chitietSp = `chitietsanpham.html?code=${p.masp}`;
 
-	if(returnString) return newLi;
+    // Tạo HTML cho sản phẩm
+    var productHtml = `<li class="sanPham">
+        <a href="${chitietSp}">
+            <img src="${p.img}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <div class="price">
+                ${price}
+            </div>
+            <div class="ratingresult">
+                ${rating}
+            </div>
+            ${p.promo ? p.promo.toWeb() : ''}
+            <div class="tooltip">
+                <button class="themvaogio" onclick="return themVaoGioHang('${p.masp}', '${p.name}')">
+                    <span class="tooltiptext">Thêm vào giỏ</span>
+                    +
+                </button>
+            </div>
+        </a>
+    </li>`;
 
-	// Thêm tag <li> vừa tạo vào <ul> homeproduct (mặc định) , hoặc tag ele truyền vào
-	var products = ele || document.getElementById('products');
-	products.innerHTML += newLi;
+    if (returnString) return productHtml;
+    if (ele) ele.innerHTML += productHtml;
 }

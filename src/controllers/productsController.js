@@ -1,126 +1,182 @@
-//Phương thức	API Endpoint	Hành động
-//GET	    /api/products	      Lấy danh sách sản phẩm
-//GET	    /api/products/:id	  Lấy sản phẩm theo ID
-//POST	  /api/products	      Tạo sản phẩm mới
-//PUT	    /api/products/:id	  Cập nhật sản phẩm
-//DELETE	/api/products/:id	  Xóa sản phẩm
+const Product = require('../models/productModel');
 
-const Product = require("../models/productModel");
+const productsController = {
+  // Lấy danh sách sản phẩm với filter và phân trang
+  async getProducts(req, reply) {
+    try {
+      const { 
+        category,
+        search,
+        sort = 'createdAt',
+        order = 'desc',
+        page = 1,
+        limit = 20
+      } = req.query;
 
-//lấy tất cả sản phẩm
-exports.getAllProducts = async (_req, reply) => {
-  try {
-    const products = await Product.find();
-    reply.send({ 
-      success: true,
-      products: products,
-      title: "Danh sách sản phẩm"
-  });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi lấy sản phẩm!", error: err });
-  }
-};
+      const query = {};
+      const sortOptions = {};
+      sortOptions[sort] = order === 'desc' ? -1 : 1;
 
-// Thêm phương thức mới cho admin
-exports.getProductsAdmin = async (_req, reply) => {
-  try {
-    const products = await Product.find();
-    return reply.send({
-      success: true,
-      products: products
-    });
-  } catch (err) {
-    reply.status(500).send({
-      success: false,
-      message: "Lỗi khi lấy sản phẩm!",
-      error: err
-    });
-  }
-};
-
-//lấy sản phẩm theo id
-exports.getProductById = async (req, reply) => {
-  const { id } = req.params;
-  try {
-    const product = await Product.findById(id);
-    if (!product) {
-      return reply.status(404).send({ message: "Không tìm thấy sản phẩm!" });
-    }
-    reply.view("productDetail", { title: product.name, product });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi tìm sản phẩm!", error: err });
-  }
-};
-
-//Tạo sản phẩm mới
-exports.createProduct = async (req, reply) => {
-  try {
-    const { masp, name, company, price } = req.body;
-
-    const existingProduct = await Product.findOne({ masp });
-    if (existingProduct) {
-      return reply.status(400).send({ message: "Mã sản phẩm đã tồn tại!" });
-    }
-
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-
-    reply.status(201).send({ message: "Thêm sản phẩm thành công!", product: newProduct });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi tạo sản phẩm!", error: err });
-  }
-};
-
-//Cập nhật sản phẩm
-exports.updateProduct = async (req, reply) => {
-  const { masp } = req.params;
-  const updateData = req.body;
-
-  try {
-    const product = await Product.findOneAndUpdate({ masp }, updateData, { new: true });
-    if (!product) {
-      return reply.status(404).send({ message: "Không tìm thấy sản phẩm!" });
-    }
-    reply.send({ message: "Cập nhật sản phẩm thành công!", product });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi cập nhật sản phẩm!", error: err });
-  }
-};
-
-//Xóa sản phẩm
-exports.deleteProduct = async (req, reply) => {
-  const { masp } = req.params;
-  try {
-    const product = await Product.findOneAndDelete({ masp });
-    if (!product) {
-      return reply.status(404).send({ message: "Không tìm thấy sản phẩm!" });
-    }
-    reply.send({ message: "Xóa sản phẩm thành công!" });
-  } catch (err) {
-    reply.status(500).send({ message: "Lỗi khi xóa sản phẩm!", error: err });
-  }
-};
-exports.getStatistics = async (_req, reply) => {
-  try {
-    const totalProducts = await Product.countDocuments();
-    const totalRevenue = await calculateRevenue(); // Hàm tính doanh thu
-    const totalOrders = await countOrders(); // Hàm đếm đơn hàng
-    const totalUsers = await countUsers(); // Hàm đếm users
-
-    return reply.send({
-      success: true,
-      statistics: {
-        totalProducts,
-        totalRevenue,
-        totalOrders,
-        totalUsers
+      // Filter theo category
+      if (category) {
+        query.category = category;
       }
-    });
-  } catch (err) {
-    reply.status(500).send({
-      success: false,
-      message: "Lỗi khi lấy thống kê!",
-      error: err
-    });
+
+      // Tìm kiếm theo tên
+      if (search) {
+        query.$text = { $search: search };
+      }
+
+      const skip = (page - 1) * limit;
+      
+      const [products, total] = await Promise.all([
+        Product.find(query)
+          .sort(sortOptions)
+          .skip(skip)
+          .limit(parseInt(limit)),
+        Product.countDocuments(query)
+      ]);
+
+      return reply.code(200).send({
+        success: true,
+        data: {
+          products,
+          pagination: {
+            total,
+            page: parseInt(page),
+            pages: Math.ceil(total / limit)
+          }
+        }
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
+  },
+
+  // Lấy chi tiết sản phẩm
+  async getProduct(req, reply) {
+    try {
+      const { id } = req.params;
+      const product = await Product.findById(id);
+
+      if (!product) {
+        return reply.code(404).send({
+          success: false,
+          message: 'Không tìm thấy sản phẩm'
+        });
+      }
+
+      return reply.code(200).send({
+        success: true,
+        data: product
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
+  },
+
+  // Tìm kiếm sản phẩm theo tên
+  async searchProducts(req, reply) {
+    try {
+      const { q, limit = 10 } = req.query;
+      
+      if (!q) {
+        return reply.code(400).send({
+          success: false,
+          message: 'Vui lòng nhập từ khóa tìm kiếm'
+        });
+      }
+
+      const products = await Product.find(
+        { $text: { $search: q } },
+        { score: { $meta: 'textScore' } }
+      )
+      .sort({ score: { $meta: 'textScore' } })
+      .limit(parseInt(limit));
+
+      return reply.code(200).send({
+        success: true,
+        data: products
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
+  },
+
+  // Lấy sản phẩm theo mã
+  async getProductByCode(req, reply) {
+    try {
+      const { code } = req.params;
+      const product = await Product.findOne({ masp: code });
+
+      if (!product) {
+        return reply.code(404).send({
+          success: false,
+          message: 'Không tìm thấy sản phẩm'
+        });
+      }
+
+      return reply.code(200).send({
+        success: true,
+        data: product
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
+  },
+
+  // Đánh giá sản phẩm
+  async rateProduct(req, reply) {
+    try {
+      const { id } = req.params;
+      const { rating } = req.body;
+
+      if (rating < 1 || rating > 5) {
+        return reply.code(400).send({
+          success: false,
+          message: 'Đánh giá phải từ 1 đến 5 sao'
+        });
+      }
+
+      const product = await Product.findById(id);
+      if (!product) {
+        return reply.code(404).send({
+          success: false,
+          message: 'Không tìm thấy sản phẩm'
+        });
+      }
+
+      // Cập nhật rating
+      const newRateCount = product.rateCount + 1;
+      const newStar = ((product.star * product.rateCount) + rating) / newRateCount;
+
+      product.star = newStar;
+      product.rateCount = newRateCount;
+      await product.save();
+
+      return reply.code(200).send({
+        success: true,
+        data: product
+      });
+    } catch (error) {
+      return reply.code(400).send({
+        success: false,
+        message: error.message
+      });
+    }
   }
 };
+
+module.exports = productsController;

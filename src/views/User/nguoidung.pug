@@ -1,0 +1,51 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(http-equiv="X-UA-Compatible" content="ie=edge")
+
+    title Thế giới điện thoại
+    link(rel="shortcut icon" href="../../public/img/favicon.ico")
+
+    // Load font awesome icons
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous")
+    script(src="../../public/js/Jquery/Jquery.min.js")
+
+    // our files
+    // css
+    link(rel="stylesheet" href="../../public/css/style.css")
+    link(rel="stylesheet" href="../../public/css/topnav.css")
+    link(rel="stylesheet" href="../../public/css/header.css")
+    link(rel="stylesheet" href="../../public/css/taikhoan.css")
+    link(rel="stylesheet" href="../../public/css/gioHang.css")
+    link(rel="stylesheet" href="../../public/css/nguoidung.css")
+    link(rel="stylesheet" href="../../public/css/footer.css")
+
+    // js
+    script(src="../../public//js/data/products.js")
+    script(src="../../public/js/classes.js")
+    script(src="../../public/js/dungchung.js")
+    script(src="../../public/js/nguoidung.js")
+
+  body
+    script.
+      addTopNav();
+
+    section
+      script.
+        addHeader();
+      
+      .infoUser
+
+      .listDonHang
+
+    script.
+      addContainTaiKhoan();
+      addPlc();
+
+    .footer
+      script.
+        addFooter();
+
+    i.fa.fa-arrow-up#goto-top-page(onclick="gotoTop()")
