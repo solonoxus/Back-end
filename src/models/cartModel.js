@@ -1,147 +1,168 @@
 // src/models/cartModel.js
 const mongoose = require('mongoose');
 
+const cartItemSchema = new mongoose.Schema({
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  price: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  promotionPrice: {
+    type: Number,
+    min: 0,
+    default: null
+  },
+  addedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const cartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
-  items: [{
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true
-    },
-    quantity: {
-      type: Number,
-      required: true,
-      min: 1
-    }
-  }]
+  items: [cartItemSchema],
+  lastModified: {
+    type: Date,
+    default: Date.now
+  },
+  status: {
+    type: String,
+    enum: ['active', 'checkout', 'abandoned'],
+    default: 'active'
+  },
+  sessionId: {
+    type: String,
+    sparse: true
+  },
+  expiresAt: {
+    type: Date,
+    default: () => new Date(+new Date() + 7*24*60*60*1000) // 7 days
+  }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-module.exports = mongoose.model('Cart', cartSchema);// src/controllers/cartController.js
-const Cart = require('../models/cartModel');
-const Product = require('../models/productModel');
+// Indexes
+cartSchema.index({ user: 1 });
+cartSchema.index({ sessionId: 1 });
+cartSchema.index({ status: 1 });
+cartSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const cartController = {
-  async getCart(req, reply) {
-    try {
-      const userId = req.user._id;
-      const cart = await Cart.findOne({ user: userId }).populate('items.product');
-      return reply.send({ cart: cart ? cart.items : [] });
-    } catch (error) {
-      console.error('Error getting cart:', error);
-      return reply.status(500).send({ message: 'Lỗi khi lấy giỏ hàng' });
+// Virtuals
+cartSchema.virtual('totalItems').get(function() {
+  return this.items.reduce((total, item) => total + item.quantity, 0);
+});
+
+cartSchema.virtual('subtotal').get(function() {
+  return this.items.reduce((total, item) => {
+    const price = item.promotionPrice || item.price;
+    return total + (price * item.quantity);
+  }, 0);
+});
+
+// Middleware
+cartSchema.pre('save', function(next) {
+  this.lastModified = new Date();
+  next();
+});
+
+// Methods
+cartSchema.methods.validateStock = async function() {
+  const Product = mongoose.model('Product');
+  const errors = [];
+
+  for (const item of this.items) {
+    const product = await Product.findById(item.product);
+    if (!product) {
+      errors.push(`Sản phẩm ${item.product} không tồn tại`);
+      continue;
     }
-  },
-
-  async addToCart(req, reply) {
-    try {
-      const userId = req.user._id;
-      const { productId, quantity } = req.body;
-
-      const product = await Product.findById(productId);
-      if (!product) {
-        return reply.status(404).send({ message: 'Sản phẩm không tồn tại' });
-      }
-
-      let cart = await Cart.findOne({ user: userId });
-      if (!cart) {
-        cart = new Cart({ user: userId, items: [] });
-      }
-
-      const existingItem = cart.items.find(
-        item => item.product.toString() === productId
-      );
-
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        cart.items.push({ product: productId, quantity });
-      }
-
-      await cart.save();
-      return reply.send({ message: 'Thêm vào giỏ thành công', cart });
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      return reply.status(500).send({ message: 'Lỗi khi thêm vào giỏ hàng' });
-    }
-  },
-
-  async updateCartItem(req, reply) {
-    try {
-      const userId = req.user._id;
-      const { productId, quantity } = req.body;
-
-      const cart = await Cart.findOne({ user: userId });
-      if (!cart) {
-        return reply.status(404).send({ message: 'Không tìm thấy giỏ hàng' });
-      }
-
-      const item = cart.items.find(
-        item => item.product.toString() === productId
-      );
-
-      if (!item) {
-        return reply.status(404).send({ message: 'Sản phẩm không có trong giỏ' });
-      }
-
-      if (quantity === 0) {
-        cart.items = cart.items.filter(
-          item => item.product.toString() !== productId
-        );
-      } else {
-        item.quantity = quantity;
-      }
-
-      await cart.save();
-      return reply.send({ message: 'Cập nhật giỏ hàng thành công', cart });
-    } catch (error) {
-      console.error('Error updating cart:', error);
-      return reply.status(500).send({ message: 'Lỗi khi cập nhật giỏ hàng' });
-    }
-  },
-
-  async removeFromCart(req, reply) {
-    try {
-      const userId = req.user._id;
-      const { productId } = req.params;
-
-      const cart = await Cart.findOne({ user: userId });
-      if (!cart) {
-        return reply.status(404).send({ message: 'Không tìm thấy giỏ hàng' });
-      }
-
-      cart.items = cart.items.filter(
-        item => item.product.toString() !== productId
-      );
-
-      await cart.save();
-      return reply.send({ message: 'Xóa sản phẩm thành công', cart });
-    } catch (error) {
-      console.error('Error removing from cart:', error);
-      return reply.status(500).send({ message: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng' });
-    }
-  },
-
-  async clearCart(req, reply) {
-    try {
-      const userId = req.user._id;
-      await Cart.findOneAndUpdate(
-        { user: userId },
-        { items: [] },
-        { new: true }
-      );
-      return reply.send({ message: 'Đã xóa giỏ hàng' });
-    } catch (error) {
-      console.error('Error clearing cart:', error);
-      return reply.status(500).send({ message: 'Lỗi khi xóa giỏ hàng' });
+    if (product.stock < item.quantity) {
+      errors.push(`Sản phẩm ${product.name} chỉ còn ${product.stock} sản phẩm`);
     }
   }
+
+  return errors;
 };
 
-module.exports = cartController;
+cartSchema.methods.updatePrices = async function() {
+  const Product = mongoose.model('Product');
+  
+  for (const item of this.items) {
+    const product = await Product.findById(item.product);
+    if (product) {
+      item.price = product.price;
+      item.promotionPrice = product.promotionPrice;
+    }
+  }
+  
+  return this.save();
+};
+
+cartSchema.methods.addItem = async function(productId, quantity) {
+  const existingItem = this.items.find(item => 
+    item.product.toString() === productId.toString()
+  );
+
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    const Product = mongoose.model('Product');
+    const product = await Product.findById(productId);
+    
+    if (!product) throw new Error('Sản phẩm không tồn tại');
+    
+    this.items.push({
+      product: productId,
+      quantity,
+      price: product.price,
+      promotionPrice: product.promotionPrice
+    });
+  }
+
+  return this.save();
+};
+
+cartSchema.methods.updateItem = async function(productId, quantity) {
+  const item = this.items.find(item => 
+    item.product.toString() === productId.toString()
+  );
+
+  if (!item) throw new Error('Sản phẩm không có trong giỏ hàng');
+
+  if (quantity <= 0) {
+    this.items = this.items.filter(item => 
+      item.product.toString() !== productId.toString()
+    );
+  } else {
+    item.quantity = quantity;
+  }
+
+  return this.save();
+};
+
+cartSchema.methods.clear = function() {
+  this.items = [];
+  return this.save();
+};
+
+const Cart = mongoose.model('Cart', cartSchema);
+
+module.exports = Cart;

@@ -1,47 +1,56 @@
 const User = require('../models/userModel');
+const Cart = require('../models/cartModel');
+const { AppError } = require('../config/errorHandler');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config/environment');
-
-// Tạo JWT token
-const createToken = (userId) => {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '24h' });
-};
+const config = require('../config/environment');
 
 const userController = {
-  // Đăng ký
+  // Đăng ký tài khoản
   async register(req, reply) {
     try {
-      const { username, password, email, name, phone, address } = req.body;
-      
-      const user = await User.create({
+      const { username, email, password, name, phone, address } = req.body;
+
+      // Kiểm tra username và email đã tồn tại
+      const existingUser = await User.findOne({
+        $or: [{ username }, { email }]
+      });
+
+      if (existingUser) {
+        throw new AppError(400, 'Username hoặc email đã được sử dụng');
+      }
+
+      // Tạo user mới
+      const user = new User({
         username,
-        password,
         email,
+        password,
         name,
         phone,
         address
       });
 
-      const token = createToken(user._id);
-      
+      await user.save();
+
+      // Tạo giỏ hàng cho user
+      await Cart.create({ user: user._id });
+
+      // Tạo token
+      const token = jwt.sign(
+        { 
+          id: user._id,
+          isAdmin: user.isAdmin
+        },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      );
+
       return reply.code(201).send({
-        success: true,
-        data: {
-          user: {
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            name: user.name,
-            isAdmin: user.isAdmin
-          },
-          token
-        }
+        message: 'Đăng ký thành công',
+        token
       });
     } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
-      });
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi đăng ký tài khoản');
     }
   },
 
@@ -49,133 +58,171 @@ const userController = {
   async login(req, reply) {
     try {
       const { username, password } = req.body;
-      
-      const user = await User.findOne({ username });
-      if (!user) {
-        return reply.code(401).send({
-          success: false,
-          message: 'Tài khoản không tồn tại'
-        });
+
+      // Tìm user và lấy cả trường password
+      const user = await User.findOne({ username })
+        .select('+password');
+
+      if (!user || !(await user.comparePassword(password))) {
+        throw new AppError(401, 'Username hoặc mật khẩu không đúng');
       }
 
-      const isMatch = await user.checkPassword(password);
-      if (!isMatch) {
-        return reply.code(401).send({
-          success: false,
-          message: 'Mật khẩu không đúng'
-        });
+      if (!user.isActive) {
+        throw new AppError(401, 'Tài khoản đã bị khóa');
       }
 
-      const token = createToken(user._id);
-      
-      return reply.code(200).send({
-        success: true,
-        data: {
-          user: {
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            name: user.name,
-            isAdmin: user.isAdmin
-          },
-          token
-        }
+      // Cập nhật thời gian đăng nhập
+      user.lastLogin = new Date();
+      await user.save();
+
+      // Tạo token
+      const token = jwt.sign(
+        { 
+          id: user._id,
+          isAdmin: user.isAdmin
+        },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      );
+
+      return reply.send({
+        message: 'Đăng nhập thành công',
+        token
       });
     } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
-      });
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi đăng nhập');
     }
   },
 
   // Lấy thông tin user
-  async getCurrentUser(req, reply) {
+  async getProfile(req, reply) {
     try {
-      const user = await User.findById(req.user.id).select('-password');
-      return reply.code(200).send({
-        success: true,
-        data: user
-      });
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        throw new AppError(404, 'Không tìm thấy người dùng');
+      }
+      return reply.send(user);
     } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
-      });
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi lấy thông tin người dùng');
     }
   },
 
   // Cập nhật thông tin user
-  async updateUser(req, reply) {
+  async updateProfile(req, reply) {
     try {
-      const { name, email, phone, address } = req.body;
-      const user = await User.findByIdAndUpdate(
-        req.user.id,
-        { name, email, phone, address },
-        { new: true }
-      ).select('-password');
+      const { name, phone, address } = req.body;
 
-      return reply.code(200).send({
-        success: true,
-        data: user
-      });
-    } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
-      });
-    }
-  },
-
-  // Thêm sản phẩm vào giỏ hàng
-  async addToCart(req, reply) {
-    try {
-      const { productId, quantity } = req.body;
       const user = await User.findById(req.user.id);
-
-      // Kiểm tra sản phẩm đã có trong giỏ hàng chưa
-      const cartItemIndex = user.cart.findIndex(
-        item => item.product.toString() === productId
-      );
-
-      if (cartItemIndex > -1) {
-        // Nếu có rồi thì cập nhật số lượng
-        user.cart[cartItemIndex].quantity += quantity;
-      } else {
-        // Nếu chưa có thì thêm mới
-        user.cart.push({ product: productId, quantity });
+      if (!user) {
+        throw new AppError(404, 'Không tìm thấy người dùng');
       }
+
+      // Cập nhật thông tin
+      if (name) user.name = name;
+      if (phone) user.phone = phone;
+      if (address) user.address = address;
 
       await user.save();
 
-      return reply.code(200).send({
-        success: true,
-        message: 'Thêm vào giỏ hàng thành công',
-        data: user.cart
+      return reply.send({
+        message: 'Cập nhật thông tin thành công',
+        user
       });
     } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
-      });
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi cập nhật thông tin');
     }
   },
 
-  // Lấy giỏ hàng của user
-  async getCart(req, reply) {
+  // Đổi mật khẩu
+  async changePassword(req, reply) {
     try {
-      const user = await User.findById(req.user.id)
-        .populate('cart.product');
+      const { currentPassword, newPassword } = req.body;
 
-      return reply.code(200).send({
-        success: true,
-        data: user.cart
+      const user = await User.findById(req.user.id).select('+password');
+      if (!user) {
+        throw new AppError(404, 'Không tìm thấy người dùng');
+      }
+
+      // Kiểm tra mật khẩu hiện tại
+      if (!(await user.comparePassword(currentPassword))) {
+        throw new AppError(401, 'Mật khẩu hiện tại không đúng');
+      }
+
+      // Cập nhật mật khẩu mới
+      user.password = newPassword;
+      await user.save();
+
+      return reply.send({
+        message: 'Đổi mật khẩu thành công'
       });
     } catch (error) {
-      return reply.code(400).send({
-        success: false,
-        message: error.message
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi đổi mật khẩu');
+    }
+  },
+
+  // Quên mật khẩu
+  async forgotPassword(req, reply) {
+    try {
+      const { email } = req.body;
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new AppError(404, 'Không tìm thấy email này');
+      }
+
+      // Tạo token reset password
+      const resetToken = jwt.sign(
+        { id: user._id },
+        config.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      // Lưu token và thời gian hết hạn
+      user.resetPasswordToken = resetToken;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+      await user.save();
+
+      // TODO: Gửi email reset password
+
+      return reply.send({
+        message: 'Đã gửi email hướng dẫn reset password'
       });
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi xử lý quên mật khẩu');
+    }
+  },
+
+  // Reset mật khẩu
+  async resetPassword(req, reply) {
+    try {
+      const { token, newPassword } = req.body;
+
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+      });
+
+      if (!user) {
+        throw new AppError(400, 'Token không hợp lệ hoặc đã hết hạn');
+      }
+
+      // Cập nhật mật khẩu mới
+      user.password = newPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+
+      return reply.send({
+        message: 'Đặt lại mật khẩu thành công'
+      });
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(500, 'Lỗi khi reset mật khẩu');
     }
   }
 };

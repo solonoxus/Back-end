@@ -1,23 +1,35 @@
 const createFastify = require("./config/fastify");
 const connectDatabase = require("./config/database");
-const { PORT, HOST, NODE_ENV } = require("./config/environment");
+const { PORT, NODE_ENV } = require("./config/environment");
 
-const app = createFastify();
-
-// Đăng ký routes
-app.register(require("./router/homeRouters"));
-app.register(require("./router/userRouters"), { prefix: "/api/users" });
-app.register(require("./router/cartRouters"), { prefix: "/api/cart" });
-app.register(require("./router/contactRouters"), { prefix: "/api/contact" });
-app.register(require("./router/adminRouters"), { prefix: "/api/admin" });
-app.register(require("./router/productsRouters"), { prefix: "/api/products" });
-app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
+let app;
 
 const start = async () => {
   try {
+    // Khởi tạo Fastify app
+    app = await createFastify();
+
     // Kết nối database trước
     await connectDatabase();
-    
+
+    // Đăng ký routes
+    app.register(require("./router/homeRouters"));
+    app.register(require("./router/userRouters"), { prefix: "/api/users" });
+    app.register(require("./router/cartRouters"), { prefix: "/api/cart" });
+    app.register(require("./router/contactRouters"), { prefix: "/api/contact" });
+    app.register(require("./router/adminRouters"), { prefix: "/api/admin" });
+    app.register(require("./router/productsRouters"), { prefix: "/products" });
+    app.register(require("./router/orderRouters"), { prefix: "/api/orders" });
+
+    // Xử lý lỗi chung cho tất cả routes
+    app.setErrorHandler((error, request, reply) => {
+      console.error("❌ Lỗi:", error);
+      reply.status(500).send({ 
+        error: "Lỗi server", 
+        message: error.message 
+      });
+    });
+
     // Sau khi database connected, start server với IPv4
     await app.listen({ 
       port: PORT, 
@@ -37,32 +49,20 @@ const start = async () => {
 };
 
 // Xử lý lỗi không được bắt
-process.on('uncaughtException', (err) => {
-  console.error('❌ Lỗi không được bắt:', err);
+process.on("uncaughtException", (err) => {
+  console.error("❌ Lỗi không được bắt:", err);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Promise bị reject nhưng không được xử lý:', promise, 'lý do:', reason);
+process.on("unhandledRejection", (err) => {
+  console.error("❌ Lỗi không được xử lý:", err);
   process.exit(1);
 });
 
 // Xử lý tắt server
-const shutdown = async (signal) => {
-  console.log(`\n${signal} đã nhận được. Đang tắt server...`);
-  try {
-    await app.close();
-    console.log('✅ Server đã đóng thành công');
-    process.exit(0);
-  } catch (err) {
-    console.error('❌ Lỗi khi đóng server:', err);
-    process.exit(1);
-  }
-};
-
-// Đăng ký các signal handlers
-['SIGTERM', 'SIGINT'].forEach(signal => {
-  process.on(signal, () => shutdown(signal));
+process.on('SIGTERM', () => {
+  console.log('👋 Nhận được signal SIGTERM, đang tắt server...');
+  process.exit(0);
 });
 
 // Khởi động server
